@@ -12,7 +12,7 @@ const MainContainer = () => {
     const [isLoading, setIsLoading] = useState(typedChar.length ? true : false);
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [focusingIdx, setFocusingIdx] = useState<number | null>(null);
-    const focusingRecKeyword =
+    const searchKeyword =
         recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedChar;
 
     const getSearchRecs = async (char: string) => {
@@ -93,7 +93,7 @@ const MainContainer = () => {
                     }
                     onKeyDown={e => {
                         if (e.nativeEvent.isComposing) return;
-                        if (e.key === 'Enter') return handleOnSubmit(focusingRecKeyword);
+                        if (e.key === 'Enter') return handleOnSubmit(searchKeyword);
                         changeFocusingIdx(e.key);
                     }}
                     onFocus={activateSearch}
@@ -116,7 +116,7 @@ const MainContainer = () => {
                                         className={focusingIdx === idx ? 'focused' : ''}
                                         key={data.sickCd}
                                         onMouseOver={() => setFocusingIdx(idx)}
-                                        onClick={() => handleOnSubmit(data.sickNm)}
+                                        onClick={() => handleOnSubmit(searchKeyword)}
                                     >
                                         {data.sickNm}
                                     </KeywordStyled>
