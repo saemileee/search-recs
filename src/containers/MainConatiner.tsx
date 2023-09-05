@@ -42,8 +42,9 @@ const MainContainer = () => {
             </div>
             <ul>
                 {isLoading && <li>검색 중...</li>}
-                {searchChar.length && <li>{searchChar}</li>}
-                {recs.length && recs.map(data => <li>{data.sickNm}</li>)}
+                {searchChar.length > 0 && <li>{searchChar}</li>}
+                <label>추천 검색어</label>
+                {recs.length > 0 && recs.map((data, idx) => idx < 7 && <li>{data.sickNm}</li>)}
             </ul>
         </>
     );
