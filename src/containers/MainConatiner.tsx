@@ -1,42 +1,30 @@
 import React, {useEffect, useRef, useState} from 'react';
-import * as Fetcher from '../apis/search';
-import * as Type from '../types/searchTypes';
 import styled from 'styled-components';
+import useSearchQuery from '../hooks/useSearch';
 
-const MAX_RECS_LENGTH = 7;
 const DEBOUNCING_TIME = 500;
 
 const MainContainer = () => {
     const searchInput = useRef(null);
     const timer = useRef<NodeJS.Timer | null>(null);
 
-    const [recs, setRecs] = useState<Type.searchRec[]>([]);
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
-    const [isSearching, setIsSearching] = useState(false);
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [focusingIdx, setFocusingIdx] = useState<number | null>(null);
+
+    const {isLoading, data: recs, getSearchRecs} = useSearchQuery();
     const searchKeyword =
         recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedSearchKeyword;
 
-    const getSearchRecs = async (char: string) => {
-        try {
-            const data = await Fetcher.getSearchRecs(char);
-            const splicedData = data.splice(0, MAX_RECS_LENGTH);
-            setRecs(splicedData);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setIsSearching(false);
-        }
-    };
-
     const handleTypeKeyword = (char: string) => {
-        setIsSearching(true);
         setFocusingIdx(null);
         setTypedSearchKeyword(char);
         if (char.length) {
             timer.current && clearTimeout(timer.current);
-            timer.current = setTimeout(() => getSearchRecs(char), DEBOUNCING_TIME);
+            timer.current = setTimeout(
+                () => char.length && getSearchRecs(char, 10000),
+                DEBOUNCING_TIME
+            );
         }
     };
 
@@ -112,7 +100,7 @@ const MainContainer = () => {
             {isSearchActive && (
                 <div>
                     <ul>
-                        {isSearching ? (
+                        {isLoading && typedSearchKeyword.length ? (
                             <li>검색 중...</li>
                         ) : (
                             recs.length > 0 && (
