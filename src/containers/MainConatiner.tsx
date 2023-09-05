@@ -1,11 +1,14 @@
-import React, {useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import * as Fetcher from '../apis/search';
 import * as Type from '../types/searchTypes';
 
 const MainContainer = () => {
+    const searchInput = useRef(null);
+
     const [searchChar, setSearchChar] = useState('');
     const [recs, setRecs] = useState<Type.searchRecs>([]);
     const [isLoading, setIsLoading] = useState(searchChar.length ? true : false);
+    const [isSearchActive, setIsSearchActive] = useState(false);
 
     const getSearchRecs = async (char: string) => {
         try {
@@ -20,8 +23,28 @@ const MainContainer = () => {
 
     const handleTypeKeyword = (char: string) => {
         setSearchChar(char);
-        getSearchRecs(char);
+        if (char.length) {
+            getSearchRecs(char);
+        }
     };
+
+    const activateSearch = () => {
+        setIsSearchActive(true);
+    };
+
+    useEffect(() => {
+        const inactivateSearch = (doc: EventTarget | null) => {
+            if (doc !== searchInput.current) return setIsSearchActive(false);
+        };
+
+        document.addEventListener('click', e => {
+            inactivateSearch(e.target);
+        });
+
+        return document.removeEventListener('click', e => {
+            inactivateSearch(e.target);
+        });
+    }, []);
 
     return (
         <>
@@ -32,20 +55,33 @@ const MainContainer = () => {
             </h1>
             <div>
                 <input
+                    ref={searchInput}
                     type='text'
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleTypeKeyword(e.target.value)
                     }
+                    onFocus={activateSearch}
                     placeholder='질환명을 입력해 주세요.'
                 />
-                <button>Search</button>
+                {isSearchActive && <button>x</button>} <button>Search</button>
             </div>
-            <ul>
-                {isLoading && <li>검색 중...</li>}
-                {searchChar.length > 0 && <li>{searchChar}</li>}
-                <label>추천 검색어</label>
-                {recs.length > 0 && recs.map((data, idx) => idx < 7 && <li>{data.sickNm}</li>)}
-            </ul>
+            {isSearchActive && (
+                <div>
+                    <ul>
+                        {isLoading && <li>검색 중...</li>}
+                        {searchChar.length > 0 && <li>{searchChar}</li>}
+                        {recs.length > 0 && (
+                            <React.Fragment>
+                                <label>추천 검색어</label>
+                                {recs.map(
+                                    (data, idx) =>
+                                        idx < 7 && <li key={data.sickCd}>{data.sickNm}</li>
+                                )}
+                            </React.Fragment>
+                        )}
+                    </ul>
+                </div>
+            )}
         </>
     );
 };
