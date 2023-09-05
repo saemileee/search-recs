@@ -4,16 +4,19 @@ import * as Type from '../types/searchTypes';
 import styled from 'styled-components';
 
 const MAX_RECS_LENGTH = 7;
+const DEBOUNCING_TIME = 500;
+
 const MainContainer = () => {
     const searchInput = useRef(null);
+    const timer = useRef<NodeJS.Timer | null>(null);
 
-    const [typedChar, setTypedChar] = useState('');
     const [recs, setRecs] = useState<Type.searchRec[]>([]);
-    const [isLoading, setIsLoading] = useState(typedChar.length ? true : false);
+    const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [focusingIdx, setFocusingIdx] = useState<number | null>(null);
     const searchKeyword =
-        recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedChar;
+        recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedSearchKeyword;
 
     const getSearchRecs = async (char: string) => {
         try {
@@ -23,15 +26,17 @@ const MainContainer = () => {
         } catch (e) {
             console.error(e);
         } finally {
-            setIsLoading(false);
+            setIsSearching(false);
         }
     };
 
     const handleTypeKeyword = (char: string) => {
+        setIsSearching(true);
         setFocusingIdx(null);
-        setTypedChar(char);
+        setTypedSearchKeyword(char);
         if (char.length) {
-            getSearchRecs(char);
+            timer.current && clearTimeout(timer.current);
+            timer.current = setTimeout(() => getSearchRecs(char), DEBOUNCING_TIME);
         }
     };
 
@@ -100,28 +105,31 @@ const MainContainer = () => {
                     placeholder='질환명을 입력해 주세요.'
                 />
                 {isSearchActive && <button>x</button>}
-                <button type='submit' onClick={() => handleOnSubmit(typedChar)}>
+                <button type='submit' onClick={() => handleOnSubmit(typedSearchKeyword)}>
                     Search
                 </button>
             </div>
             {isSearchActive && (
                 <div>
                     <ul>
-                        {isLoading && <li>검색 중...</li>}
-                        {recs.length > 0 && (
-                            <React.Fragment>
-                                <label>추천 검색어</label>
-                                {recs.map((data, idx) => (
-                                    <KeywordStyled
-                                        className={focusingIdx === idx ? 'focused' : ''}
-                                        key={data.sickCd}
-                                        onMouseOver={() => setFocusingIdx(idx)}
-                                        onClick={() => handleOnSubmit(searchKeyword)}
-                                    >
-                                        {data.sickNm}
-                                    </KeywordStyled>
-                                ))}
-                            </React.Fragment>
+                        {isSearching ? (
+                            <li>검색 중...</li>
+                        ) : (
+                            recs.length > 0 && (
+                                <React.Fragment>
+                                    <label>추천 검색어</label>
+                                    {recs.map((data, idx) => (
+                                        <KeywordStyled
+                                            className={focusingIdx === idx ? 'focused' : ''}
+                                            key={data.sickCd}
+                                            onMouseOver={() => setFocusingIdx(idx)}
+                                            onClick={() => handleOnSubmit(searchKeyword)}
+                                        >
+                                            {data.sickNm}
+                                        </KeywordStyled>
+                                    ))}
+                                </React.Fragment>
+                            )
                         )}
                     </ul>
                 </div>
