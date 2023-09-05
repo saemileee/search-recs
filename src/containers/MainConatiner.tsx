@@ -7,16 +7,19 @@ const MAX_RECS_LENGTH = 7;
 const MainContainer = () => {
     const searchInput = useRef(null);
 
-    const [searchChar, setSearchChar] = useState('');
-    const [recs, setRecs] = useState<Type.searchRecs>([]);
-    const [isLoading, setIsLoading] = useState(searchChar.length ? true : false);
+    const [typedChar, setTypedChar] = useState('');
+    const [recs, setRecs] = useState<Type.searchRec[]>([]);
+    const [isLoading, setIsLoading] = useState(typedChar.length ? true : false);
     const [isSearchActive, setIsSearchActive] = useState(false);
-    const [focusingIdx, setFocusingIdx] = useState(0);
+    const [focusingIdx, setFocusingIdx] = useState<number | null>(null);
+    const focusingRecKeyword =
+        recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedChar;
 
     const getSearchRecs = async (char: string) => {
         try {
             const data = await Fetcher.getSearchRecs(char);
-            setRecs(data);
+            const splicedData = data.splice(0, MAX_RECS_LENGTH);
+            setRecs(splicedData);
         } catch (e) {
             console.error(e);
         } finally {
@@ -25,8 +28,8 @@ const MainContainer = () => {
     };
 
     const handleTypeKeyword = (char: string) => {
-        setFocusingIdx(0);
-        setSearchChar(char);
+        setFocusingIdx(null);
+        setTypedChar(char);
         if (char.length) {
             getSearchRecs(char);
         }
@@ -37,15 +40,24 @@ const MainContainer = () => {
     };
 
     const changeFocusingIdx = (key: string) => {
-        if (
-            key === 'ArrowDown' &&
-            focusingIdx < (MAX_RECS_LENGTH < recs.length ? MAX_RECS_LENGTH : recs.length)
-        ) {
-            setFocusingIdx(prev => prev + 1);
+        if (key === 'ArrowDown') {
+            if (focusingIdx === null) {
+                setFocusingIdx(0);
+            } else if (focusingIdx < recs.length - 1) {
+                setFocusingIdx(prev => (prev !== null ? prev + 1 : prev));
+            }
         }
-        if (key === 'ArrowUp' && focusingIdx > 0) {
-            setFocusingIdx(prev => prev - 1);
+        if (key === 'ArrowUp') {
+            if (focusingIdx === 0) {
+                setFocusingIdx(null);
+            } else if (focusingIdx !== null && focusingIdx > 0) {
+                setFocusingIdx(prev => (prev ? prev - 1 : prev));
+            }
         }
+    };
+
+    const handleOnSubmit = (searchKeyword: string) => {
+        alert(searchKeyword);
     };
 
     useEffect(() => {
@@ -81,32 +93,34 @@ const MainContainer = () => {
                     }
                     onKeyDown={e => {
                         if (e.nativeEvent.isComposing) return;
+                        if (e.key === 'Enter') return handleOnSubmit(focusingRecKeyword);
                         changeFocusingIdx(e.key);
                     }}
                     onFocus={activateSearch}
                     placeholder='질환명을 입력해 주세요.'
                 />
-                {isSearchActive && <button>x</button>} <button>Search</button>
+                {isSearchActive && <button>x</button>}
+                <button type='submit' onClick={() => handleOnSubmit(typedChar)}>
+                    Search
+                </button>
             </div>
             {isSearchActive && (
                 <div>
                     <ul>
                         {isLoading && <li>검색 중...</li>}
-                        {searchChar.length > 0 && <li>{searchChar}</li>}
                         {recs.length > 0 && (
                             <React.Fragment>
                                 <label>추천 검색어</label>
-                                {recs.map(
-                                    (data, idx) =>
-                                        idx < MAX_RECS_LENGTH && (
-                                            <RecKeywordStyled
-                                                className={focusingIdx === idx + 1 ? 'focused' : ''}
-                                                key={data.sickCd}
-                                            >
-                                                {data.sickNm}
-                                            </RecKeywordStyled>
-                                        )
-                                )}
+                                {recs.map((data, idx) => (
+                                    <KeywordStyled
+                                        className={focusingIdx === idx ? 'focused' : ''}
+                                        key={data.sickCd}
+                                        onMouseOver={() => setFocusingIdx(idx)}
+                                        onClick={() => handleOnSubmit(data.sickNm)}
+                                    >
+                                        {data.sickNm}
+                                    </KeywordStyled>
+                                ))}
                             </React.Fragment>
                         )}
                     </ul>
@@ -116,10 +130,11 @@ const MainContainer = () => {
     );
 };
 
-const RecKeywordStyled = styled.li`
+const KeywordStyled = styled.li`
     &.focused {
         background-color: blue;
     }
+    cursor: pointer;
 `;
 
 export default MainContainer;
