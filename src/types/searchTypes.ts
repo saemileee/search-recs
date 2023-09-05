@@ -1,1 +1,1 @@
-export type searchRecs = {sickCd: string; sickNm: string}[];
+export type searchRec = {sickCd: string; sickNm: string};
