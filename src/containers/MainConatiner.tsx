@@ -1,7 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import * as Fetcher from '../apis/search';
 import * as Type from '../types/searchTypes';
+import styled from 'styled-components';
 
+const MAX_RECS_LENGTH = 7;
 const MainContainer = () => {
     const searchInput = useRef(null);
 
@@ -9,6 +11,7 @@ const MainContainer = () => {
     const [recs, setRecs] = useState<Type.searchRecs>([]);
     const [isLoading, setIsLoading] = useState(searchChar.length ? true : false);
     const [isSearchActive, setIsSearchActive] = useState(false);
+    const [focusingIdx, setFocusingIdx] = useState(0);
 
     const getSearchRecs = async (char: string) => {
         try {
@@ -22,6 +25,7 @@ const MainContainer = () => {
     };
 
     const handleTypeKeyword = (char: string) => {
+        setFocusingIdx(0);
         setSearchChar(char);
         if (char.length) {
             getSearchRecs(char);
@@ -32,9 +36,24 @@ const MainContainer = () => {
         setIsSearchActive(true);
     };
 
+    const changeFocusingIdx = (key: string) => {
+        if (
+            key === 'ArrowDown' &&
+            focusingIdx < (MAX_RECS_LENGTH < recs.length ? MAX_RECS_LENGTH : recs.length)
+        ) {
+            setFocusingIdx(prev => prev + 1);
+        }
+        if (key === 'ArrowUp' && focusingIdx > 0) {
+            setFocusingIdx(prev => prev - 1);
+        }
+    };
+
     useEffect(() => {
         const inactivateSearch = (doc: EventTarget | null) => {
-            if (doc !== searchInput.current) return setIsSearchActive(false);
+            if (doc !== searchInput.current) {
+                setIsSearchActive(false);
+                setFocusingIdx(0);
+            }
         };
 
         document.addEventListener('click', e => {
@@ -60,6 +79,10 @@ const MainContainer = () => {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleTypeKeyword(e.target.value)
                     }
+                    onKeyDown={e => {
+                        if (e.nativeEvent.isComposing) return;
+                        changeFocusingIdx(e.key);
+                    }}
                     onFocus={activateSearch}
                     placeholder='질환명을 입력해 주세요.'
                 />
@@ -75,7 +98,14 @@ const MainContainer = () => {
                                 <label>추천 검색어</label>
                                 {recs.map(
                                     (data, idx) =>
-                                        idx < 7 && <li key={data.sickCd}>{data.sickNm}</li>
+                                        idx < MAX_RECS_LENGTH && (
+                                            <RecKeywordStyled
+                                                className={focusingIdx === idx + 1 ? 'focused' : ''}
+                                                key={data.sickCd}
+                                            >
+                                                {data.sickNm}
+                                            </RecKeywordStyled>
+                                        )
                                 )}
                             </React.Fragment>
                         )}
@@ -85,5 +115,11 @@ const MainContainer = () => {
         </>
     );
 };
+
+const RecKeywordStyled = styled.li`
+    &.focused {
+        background-color: blue;
+    }
+`;
 
 export default MainContainer;
