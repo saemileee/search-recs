@@ -28,6 +28,11 @@ const MainContainer = () => {
         }
     };
 
+    const hanldeInputKeydown = (e: React.KeyboardEvent) => {
+        onKeydownHandler(e);
+        if (e.key === 'Enter') return handleOnSubmit(searchKeyword);
+    };
+
     const activateSearch = () => {
         showHelperBox();
     };
@@ -50,11 +55,7 @@ const MainContainer = () => {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleTypeKeyword(e.target.value)
                     }
-                    onKeyDown={e => {
-                        if (e.nativeEvent.isComposing) return;
-                        if (e.key === 'Enter') return handleOnSubmit(searchKeyword);
-                        onKeydownHandler(e.key);
-                    }}
+                    onKeyDown={hanldeInputKeydown}
                     onFocus={activateSearch}
                     placeholder='질환명을 입력해 주세요.'
                 />
