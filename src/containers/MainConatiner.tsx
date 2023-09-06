@@ -65,7 +65,7 @@ const MainContainer = () => {
                     placeholder='질환명을 입력해 주세요.'
                     value={typedSearchKeyword}
                 />
-                {isHelperBoxShow && (
+                {typedSearchKeyword.length > 0 && (
                     <button ref={removeButton} onClick={removeSearchKeyword}>
                         x
                     </button>
@@ -92,7 +92,9 @@ const MainContainer = () => {
                                 ))}
                             </React.Fragment>
                         )}
-                        {!isLoading && recs.length === 0 && <li>추천 검색어가 없습니다 :(</li>}
+                        {!isLoading && recs.length === 0 && typedSearchKeyword.length > 0 && (
+                            <li>추천 검색어가 없습니다 :(</li>
+                        )}
                     </ul>
                 </div>
             )}
