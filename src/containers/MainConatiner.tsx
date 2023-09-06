@@ -2,18 +2,20 @@ import React, {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import useSearchQuery from '../hooks/useSearch';
 import useDebounce from '../hooks/useDebounce';
+import useFocusingIdx from '../hooks/useKeydown';
 
 const DEBOUNCING_TIME = 500;
 
 const MainContainer = () => {
-    const debounce = useDebounce();
     const searchInput = useRef(null);
 
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
     const [isSearchActive, setIsSearchActive] = useState(false);
-    const [focusingIdx, setFocusingIdx] = useState<number | null>(null);
-
     const {isLoading, data: recs, getSearchRecs} = useSearchQuery();
+
+    const debounce = useDebounce();
+    const {onKeydownHandler, focusingIdx, setFocusingIdx} = useFocusingIdx(recs.length);
+
     const searchKeyword =
         recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedSearchKeyword;
 
@@ -27,23 +29,6 @@ const MainContainer = () => {
 
     const activateSearch = () => {
         setIsSearchActive(true);
-    };
-
-    const changeFocusingIdx = (key: string) => {
-        if (key === 'ArrowDown') {
-            if (focusingIdx === null) {
-                setFocusingIdx(0);
-            } else if (focusingIdx < recs.length - 1) {
-                setFocusingIdx(prev => (prev !== null ? prev + 1 : prev));
-            }
-        }
-        if (key === 'ArrowUp') {
-            if (focusingIdx === 0) {
-                setFocusingIdx(null);
-            } else if (focusingIdx !== null && focusingIdx > 0) {
-                setFocusingIdx(prev => (prev ? prev - 1 : prev));
-            }
-        }
     };
 
     const handleOnSubmit = (searchKeyword: string) => {
@@ -65,7 +50,7 @@ const MainContainer = () => {
         return document.removeEventListener('click', e => {
             inactivateSearch(e.target);
         });
-    }, []);
+    }, [setFocusingIdx]);
 
     return (
         <>
@@ -84,7 +69,7 @@ const MainContainer = () => {
                     onKeyDown={e => {
                         if (e.nativeEvent.isComposing) return;
                         if (e.key === 'Enter') return handleOnSubmit(searchKeyword);
-                        changeFocusingIdx(e.key);
+                        onKeydownHandler(e.key);
                     }}
                     onFocus={activateSearch}
                     placeholder='질환명을 입력해 주세요.'
