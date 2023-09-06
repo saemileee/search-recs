@@ -14,12 +14,12 @@ const useSearch = () => {
 
         const fetchData = async () => {
             try {
-                console.info('api 통신' + queryKey);
                 const res = await Fetcher.getSearchRecs(queryKey);
+
+                searchTrieCache.insert(queryKey, {data: res.data, expireTime});
 
                 const slicedData = res.data.slice(0, MAX_RECS_LENGTH);
                 setData(slicedData);
-                searchTrieCache.insert(queryKey, {data: res.data, expireTime});
             } catch (e) {
                 setError(e);
             } finally {
@@ -30,13 +30,13 @@ const useSearch = () => {
         const cacheData = searchTrieCache.getCacheData(queryKey);
         if (cacheData) {
             console.info('저장된 쿼리키 있음, 캐시된 전체 데이터: ');
-            console.info(queryKey, cacheData);
+            console.info(cacheData);
 
             const slicedData = cacheData.slice(0, MAX_RECS_LENGTH);
             setData(slicedData);
             setIsLoading(false);
         } else {
-            console.info('쿼리키 없어서 api 호출');
+            console.info('캐싱된 데이터가 없어 api 호출');
             fetchData();
         }
     }, []);
