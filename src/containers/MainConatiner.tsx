@@ -11,16 +11,16 @@ const MainContainer = () => {
     const searchInput = useRef(null);
 
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
-    const {isLoading, data: recs, getSearchRecs} = useSearchQuery();
 
-    const debounce = useDebounce();
+    const {isLoading, data: recs, getSearchRecs} = useSearchQuery();
     const {onKeydownHandler, focusingIdx, setFocusingIdx} = useFocusingIdx(recs.length);
     const {isShowing: isHelperBoxShow, showHelperBox} = useHelperBox(searchInput);
+    const debounce = useDebounce();
 
     const searchKeyword =
         recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedSearchKeyword;
 
-    const handleTypeKeyword = (char: string) => {
+    const handleChangeInput = (char: string) => {
         setFocusingIdx(null);
         setTypedSearchKeyword(char);
         if (char.length) {
@@ -53,7 +53,7 @@ const MainContainer = () => {
                     ref={searchInput}
                     type='text'
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        handleTypeKeyword(e.target.value)
+                        handleChangeInput(e.target.value)
                     }
                     onKeyDown={hanldeInputKeydown}
                     onFocus={activateSearch}
@@ -67,25 +67,22 @@ const MainContainer = () => {
             {isHelperBoxShow && (
                 <div>
                     <ul>
-                        {isLoading && typedSearchKeyword.length ? (
-                            <li>검색 중...</li>
-                        ) : (
-                            recs.length > 0 && (
-                                <React.Fragment>
-                                    <label>추천 검색어</label>
-                                    {recs.map((data, idx) => (
-                                        <KeywordStyled
-                                            className={focusingIdx === idx ? 'focused' : ''}
-                                            key={data.sickCd}
-                                            onMouseOver={() => setFocusingIdx(idx)}
-                                            onClick={() => handleOnSubmit(searchKeyword)}
-                                        >
-                                            {data.sickNm}
-                                        </KeywordStyled>
-                                    ))}
-                                </React.Fragment>
-                            )
+                        {!isLoading && recs.length > 0 && typedSearchKeyword.length > 0 && (
+                            <React.Fragment>
+                                <label>추천 검색어</label>
+                                {recs.map((data, idx) => (
+                                    <KeywordStyled
+                                        className={focusingIdx === idx ? 'focused' : ''}
+                                        key={data.sickCd}
+                                        onMouseOver={() => setFocusingIdx(idx)}
+                                        onClick={() => handleOnSubmit(searchKeyword)}
+                                    >
+                                        {data.sickNm}
+                                    </KeywordStyled>
+                                ))}
+                            </React.Fragment>
                         )}
+                        {!isLoading && recs.length === 0 && <li>추천 검색어가 없습니다 :(</li>}
                     </ul>
                 </div>
             )}

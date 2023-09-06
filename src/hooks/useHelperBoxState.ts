@@ -7,24 +7,23 @@ const useHelperBox = (ref: React.MutableRefObject<null>) => {
         setIsShowing(true);
     }, []);
 
-    const closeHelperBox = useCallback(
-        (doc: EventTarget | null) => {
-            if (doc !== ref.current) {
-                setIsShowing(false);
-            }
-        },
-        [ref]
-    );
+    const closeHelperBox = useCallback(() => {
+        setIsShowing(false);
+    }, []);
 
     useEffect(() => {
         document.addEventListener('click', e => {
-            closeHelperBox(e.target);
+            if (e.target !== ref.current) {
+                closeHelperBox();
+            }
         });
 
         return document.removeEventListener('click', e => {
-            closeHelperBox(e.target);
+            if (e.target !== ref.current) {
+                closeHelperBox();
+            }
         });
-    }, [closeHelperBox]);
+    }, [closeHelperBox, ref]);
 
     return {isShowing, showHelperBox, closeHelperBox};
 };
