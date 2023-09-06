@@ -26,7 +26,7 @@ class Child {
     }
 }
 
-class Trie {
+export class Trie {
     root: Child;
     constructor() {
         this.root = new Child();
@@ -124,5 +124,3 @@ class Trie {
         return false;
     }
 }
-
-export const searchTrieCache = new Trie();

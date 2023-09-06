@@ -1,9 +1,10 @@
 import React, {useRef, useState} from 'react';
 import styled from 'styled-components';
-import useSearchQuery from '../hooks/useSearch';
+import useSearch from '../hooks/controllers/useSearch';
 import useDebounce from '../hooks/useDebounce';
 import useFocusingIdx from '../hooks/useKeydown';
 import useHelperBox from '../hooks/useHelperBoxState';
+import {Link} from 'react-router-dom';
 
 const DEBOUNCING_TIME = 500;
 
@@ -13,7 +14,7 @@ const MainContainer = () => {
 
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
 
-    const {isLoading, data: recs, getSearchRecs} = useSearchQuery();
+    const {isLoading, data: recs, getSearchRecs} = useSearch();
     const {onKeydownHandler, focusingIdx, setFocusingIdx} = useFocusingIdx(recs.length);
     const {isShowing: isHelperBoxShow, showHelperBox} = useHelperBox([searchInput, removeButton]);
     const debounce = useDebounce();
@@ -25,7 +26,7 @@ const MainContainer = () => {
         setFocusingIdx(null);
         setTypedSearchKeyword(char);
         if (char.length) {
-            debounce(() => char.length && getSearchRecs(char, 100000), DEBOUNCING_TIME);
+            debounce(() => char.length && getSearchRecs(char, 3600000), DEBOUNCING_TIME);
         }
     };
 
@@ -48,6 +49,7 @@ const MainContainer = () => {
 
     return (
         <>
+            <Link to='/main'>이동</Link>
             <h1>
                 국내 모든 임상시험 검색하고
                 <br />
