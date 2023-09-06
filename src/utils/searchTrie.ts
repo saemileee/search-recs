@@ -40,28 +40,30 @@ class Trie {
         }
     ) {
         const {data, expireTime} = cacheInfo;
-
         let currentNode = this.root;
+        const lowerCaseString = string.toLowerCase();
+        console.info('캐싱 됨');
 
-        for (let i = 0; i < string.length; i++) {
-            const char = string[i];
-            // 현재 노드 하위 노드에 해당 음절이 없다면 음절추가하기
-            if (!currentNode.children.has(char)) {
-                // 마지막 음절 전까지는 음절만 추가하기
-                if (i < string.length - 1) {
-                    currentNode.children.set(char, new Child(currentNode.value + char));
-                }
-                // 마지막 음절 (전체 쿼리키 값에 데이터 추가하기)
-                else {
-                    currentNode.children.set(
-                        char,
-                        new Child(currentNode.value + char, {
-                            data,
-                            expireTime,
-                            createdAt: new Date().getTime(),
-                        })
-                    );
-                }
+        for (let i = 0; i < lowerCaseString.length; i++) {
+            const char = lowerCaseString[i];
+
+            const isChildrenNotHavingChar = !currentNode.children.has(char);
+            const isBeforeLastChar = i < lowerCaseString.length - 1;
+            const isLastChar = i === lowerCaseString.length - 1;
+
+            if (isChildrenNotHavingChar && isBeforeLastChar) {
+                currentNode.children.set(char, new Child(currentNode.value + char));
+            }
+
+            if (isLastChar) {
+                currentNode.children.set(
+                    char,
+                    new Child(currentNode.value + char, {
+                        data,
+                        expireTime,
+                        createdAt: new Date().getTime(),
+                    })
+                );
             }
 
             currentNode = currentNode.children.get(char);
@@ -70,8 +72,9 @@ class Trie {
 
     getMostSimilar(string: string) {
         let currentNode = this.root;
+        const lowerCaseString = string.toLowerCase();
 
-        for (const char of string) {
+        for (const char of lowerCaseString) {
             if (!currentNode.children.has(char)) {
                 return currentNode;
             }
@@ -81,24 +84,39 @@ class Trie {
     }
 
     getCacheData(string: string) {
-        const similarNode = this.getMostSimilar(string);
-        if (similarNode.value === '') {
+        const lowerCaseString = string.toLowerCase();
+        const similarNode = this.getMostSimilar(lowerCaseString);
+        const similarData = similarNode.data;
+
+        const isNothingSimilar = similarNode.value === '';
+        const isSimilarNodeEmpty = similarData === undefined;
+        const isSimilarHavingData = similarData;
+        const isExpired =
+            new Date().getTime() - (similarNode.createdAt || 0) > (similarNode.expireTime || 1);
+        const isSameNodeValue = similarNode.value === lowerCaseString;
+
+        if (isNothingSimilar) {
             return false;
         }
 
-        if (similarNode.data === undefined) {
+        if (isSimilarNodeEmpty) {
             return false;
         }
 
-        if (similarNode.data) {
-            if (
-                new Date().getTime() - (similarNode.createdAt || 0) >
-                (similarNode.expireTime || -1)
-            ) {
+        if (isSimilarHavingData) {
+            if (isExpired) {
+                console.info('캐시 만료');
                 return false;
             } else {
-                const newData = similarNode.data.filter(rec => rec.sickNm.includes(string));
-                this.insert(string, {data: newData, expireTime: similarNode.expireTime});
+                if (isSameNodeValue) {
+                    return similarNode.data;
+                }
+                const newData = similarData.filter(rec =>
+                    rec.sickNm.toLowerCase().includes(lowerCaseString)
+                );
+
+                this.insert(lowerCaseString, {data: newData, expireTime: similarNode.expireTime});
+
                 return newData;
             }
         }
