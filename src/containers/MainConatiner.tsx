@@ -25,7 +25,7 @@ const MainContainer = () => {
         setFocusingIdx(null);
         setTypedSearchKeyword(char);
         if (char.length) {
-            debounce(() => char.length && getSearchRecs(char, 10000), DEBOUNCING_TIME);
+            debounce(() => char.length && getSearchRecs(char, 100000), DEBOUNCING_TIME);
         }
     };
 
