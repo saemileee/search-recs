@@ -1,12 +1,13 @@
 import React, {useEffect, useRef, useState} from 'react';
 import styled from 'styled-components';
 import useSearchQuery from '../hooks/useSearch';
+import useDebounce from '../hooks/useDebounce';
 
 const DEBOUNCING_TIME = 500;
 
 const MainContainer = () => {
+    const debounce = useDebounce();
     const searchInput = useRef(null);
-    const timer = useRef<NodeJS.Timer | null>(null);
 
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
     const [isSearchActive, setIsSearchActive] = useState(false);
@@ -20,11 +21,7 @@ const MainContainer = () => {
         setFocusingIdx(null);
         setTypedSearchKeyword(char);
         if (char.length) {
-            timer.current && clearTimeout(timer.current);
-            timer.current = setTimeout(
-                () => char.length && getSearchRecs(char, 10000),
-                DEBOUNCING_TIME
-            );
+            debounce(() => char.length && getSearchRecs(char, 10000), DEBOUNCING_TIME);
         }
     };
 
