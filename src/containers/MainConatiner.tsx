@@ -9,12 +9,13 @@ const DEBOUNCING_TIME = 500;
 
 const MainContainer = () => {
     const searchInput = useRef(null);
+    const removeButton = useRef(null);
 
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
 
     const {isLoading, data: recs, getSearchRecs} = useSearchQuery();
     const {onKeydownHandler, focusingIdx, setFocusingIdx} = useFocusingIdx(recs.length);
-    const {isShowing: isHelperBoxShow, showHelperBox} = useHelperBox(searchInput);
+    const {isShowing: isHelperBoxShow, showHelperBox} = useHelperBox([searchInput, removeButton]);
     const debounce = useDebounce();
 
     const searchKeyword =
@@ -35,6 +36,10 @@ const MainContainer = () => {
 
     const activateSearch = () => {
         showHelperBox();
+    };
+
+    const removeSearchKeyword = () => {
+        setTypedSearchKeyword('');
     };
 
     const handleOnSubmit = (searchKeyword: string) => {
@@ -58,8 +63,13 @@ const MainContainer = () => {
                     onKeyDown={hanldeInputKeydown}
                     onFocus={activateSearch}
                     placeholder='질환명을 입력해 주세요.'
+                    value={typedSearchKeyword}
                 />
-                {isHelperBoxShow && <button>x</button>}
+                {isHelperBoxShow && (
+                    <button ref={removeButton} onClick={removeSearchKeyword}>
+                        x
+                    </button>
+                )}
                 <button type='submit' onClick={() => handleOnSubmit(typedSearchKeyword)}>
                     Search
                 </button>

@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from 'react';
 
-const useHelperBox = (ref: React.MutableRefObject<null>) => {
+const useHelperBox = (refs: React.MutableRefObject<null>[]) => {
     const [isShowing, setIsShowing] = useState(false);
 
     const showHelperBox = useCallback(() => {
@@ -12,18 +12,25 @@ const useHelperBox = (ref: React.MutableRefObject<null>) => {
     }, []);
 
     useEffect(() => {
-        document.addEventListener('click', e => {
-            if (e.target !== ref.current) {
+        const handleClickOutside = (e: Event) => {
+            let isOutside = true;
+            for (const ref of refs) {
+                if (ref.current && ref.current === e.target) {
+                    isOutside = false;
+                    break;
+                }
+            }
+            if (isOutside) {
                 closeHelperBox();
             }
-        });
+        };
 
-        return document.removeEventListener('click', e => {
-            if (e.target !== ref.current) {
-                closeHelperBox();
-            }
-        });
-    }, [closeHelperBox, ref]);
+        document.addEventListener('mousedown', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [closeHelperBox, refs]);
 
     return {isShowing, showHelperBox, closeHelperBox};
 };
