@@ -5,6 +5,7 @@ import useDebounce from '../hooks/useDebounce';
 import useFocusingIdx from '../hooks/useKeydown';
 import useHelperBox from '../hooks/useHelperBoxState';
 import {Link} from 'react-router-dom';
+import {isValidKeyword} from '../utils/regex';
 
 const DEBOUNCING_TIME = 500;
 
@@ -25,7 +26,7 @@ const MainContainer = () => {
         setFocusingIdx(null);
         setTypedSearchKeyword(char);
         if (char.length) {
-            debounce(() => char.length && getSearchRecs(char, 3600000), DEBOUNCING_TIME);
+            debounce(() => isValidKeyword(char) && getSearchRecs(char, 3600000), DEBOUNCING_TIME);
         }
     };
 
