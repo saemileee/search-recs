@@ -1,8 +1,9 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import styled from 'styled-components';
 import useSearchQuery from '../hooks/useSearch';
 import useDebounce from '../hooks/useDebounce';
 import useFocusingIdx from '../hooks/useKeydown';
+import useHelperBox from '../hooks/useHelperBoxState';
 
 const DEBOUNCING_TIME = 500;
 
@@ -10,11 +11,11 @@ const MainContainer = () => {
     const searchInput = useRef(null);
 
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
-    const [isSearchActive, setIsSearchActive] = useState(false);
     const {isLoading, data: recs, getSearchRecs} = useSearchQuery();
 
     const debounce = useDebounce();
     const {onKeydownHandler, focusingIdx, setFocusingIdx} = useFocusingIdx(recs.length);
+    const {isShowing: isHelperBoxShow, showHelperBox} = useHelperBox(searchInput);
 
     const searchKeyword =
         recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedSearchKeyword;
@@ -28,29 +29,12 @@ const MainContainer = () => {
     };
 
     const activateSearch = () => {
-        setIsSearchActive(true);
+        showHelperBox();
     };
 
     const handleOnSubmit = (searchKeyword: string) => {
         alert(searchKeyword);
     };
-
-    useEffect(() => {
-        const inactivateSearch = (doc: EventTarget | null) => {
-            if (doc !== searchInput.current) {
-                setIsSearchActive(false);
-                setFocusingIdx(0);
-            }
-        };
-
-        document.addEventListener('click', e => {
-            inactivateSearch(e.target);
-        });
-
-        return document.removeEventListener('click', e => {
-            inactivateSearch(e.target);
-        });
-    }, [setFocusingIdx]);
 
     return (
         <>
@@ -74,12 +58,12 @@ const MainContainer = () => {
                     onFocus={activateSearch}
                     placeholder='질환명을 입력해 주세요.'
                 />
-                {isSearchActive && <button>x</button>}
+                {isHelperBoxShow && <button>x</button>}
                 <button type='submit' onClick={() => handleOnSubmit(typedSearchKeyword)}>
                     Search
                 </button>
             </div>
-            {isSearchActive && (
+            {isHelperBoxShow && (
                 <div>
                     <ul>
                         {isLoading && typedSearchKeyword.length ? (
