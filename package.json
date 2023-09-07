@@ -1,5 +1,5 @@
 {
-    "name": "wanted-pre-onboarding-12th-2nd",
+    "name": "search-app",
     "version": "0.1.0",
     "private": true,
     "dependencies": {
@@ -11,6 +11,7 @@
         "@types/react": "^18.2.21",
         "@types/react-dom": "^18.2.7",
         "axios": "^1.5.0",
+        "json-server": "^0.17.3",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.15.0",
@@ -20,7 +21,7 @@
         "web-vitals": "^2.1.4"
     },
     "scripts": {
-        "start": "react-scripts start",
+        "start": "react-scripts start && json-server --watch db.json --port 4000",
         "build": "react-scripts build",
         "postinstall": "husky install",
         "format": "prettier --cache --write .",
