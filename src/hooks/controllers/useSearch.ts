@@ -1,8 +1,8 @@
 import {useCallback, useReducer} from 'react';
 import * as Fetcher from '../../apis/search';
 import * as Type from '../../types/searchTypes';
-import {searchTrieCache} from '../../store/searchCache';
 import axios, {AxiosError} from 'axios';
+import {insertCache, getCacheData} from '../../utils/searchTrieCache';
 
 interface TypeSearchState {
     isLoading: boolean;
@@ -52,7 +52,7 @@ const useSearch = () => {
         const fetchData = async () => {
             try {
                 const res = await Fetcher.getSearchRecs(queryKey);
-                searchTrieCache.insert(queryKey, {data: res.data, expireTime});
+                insertCache(queryKey, {data: res.data, expireTime});
                 dispatch({type: 'GET', payload: res.data});
             } catch (e) {
                 if (axios.isAxiosError(e)) {
@@ -63,11 +63,11 @@ const useSearch = () => {
             }
         };
 
-        const cacheData = searchTrieCache.getCacheData(queryKey);
-        if (cacheData) {
+        const cachedData = getCacheData(queryKey);
+        if (cachedData) {
             console.info('저장된 쿼리키 있음, 캐시된 전체 데이터: ');
-            console.info(cacheData);
-            dispatch({type: 'GET', payload: cacheData});
+            console.info(cachedData);
+            dispatch({type: 'GET', payload: cachedData});
         } else {
             console.info('캐싱된 데이터가 없어 api 호출');
             fetchData();
