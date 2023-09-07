@@ -95,12 +95,21 @@ const MainContainer = () => {
                                     <label>추천 검색어</label>
                                     {recs.map((data, idx) => (
                                         <li
-                                            className={focusingIdx === idx ? 'focused' : ''}
+                                            className={focusingIdx === idx ? 'focused' : undefined}
                                             key={data.sickCd}
                                             onMouseOver={() => setFocusingIdx(idx)}
                                             onClick={() => handleOnSubmit(searchKeyword)}
                                         >
-                                            {data.sickNm}
+                                            {data.sickNm.split(typedSearchKeyword).map((s, idx) => (
+                                                <React.Fragment key={idx}>
+                                                    {idx > 0 && (
+                                                        <span className='bold'>
+                                                            {typedSearchKeyword}
+                                                        </span>
+                                                    )}
+                                                    {s}
+                                                </React.Fragment>
+                                            ))}
                                         </li>
                                     ))}
                                 </React.Fragment>
@@ -224,6 +233,10 @@ const ContainerStyled = styled.div`
                         color: #aaafaf;
                         font-weight: 600;
                         font-size: 14px;
+                    }
+
+                    .bold {
+                        font-weight: 700;
                     }
                 }
             }
