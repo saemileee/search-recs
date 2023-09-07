@@ -17,7 +17,7 @@ type TypeAction =
     | {type: 'INIT'};
 
 const initState = {
-    isLoading: false,
+    isLoading: true,
     error: null,
     data: [],
 };
