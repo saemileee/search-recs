@@ -22,7 +22,7 @@
     },
     "scripts": {
         "start": "react-scripts start && json-server --watch db.json --port 4000",
-        "build": "react-scripts build",
+        "build": "GENERATE_SOURCEMAP=false react-scripts build",
         "postinstall": "husky install",
         "format": "prettier --cache --write .",
         "lint": "eslint --cache ."
