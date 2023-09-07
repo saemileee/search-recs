@@ -8,6 +8,7 @@ import {Link} from 'react-router-dom';
 import {isValidKeyword} from '../utils/regex';
 
 const DEBOUNCING_TIME = 500;
+const CACHE_EXPIRE_TIME = 3600000;
 
 const MainContainer = () => {
     const searchInput = useRef(null);
@@ -48,7 +49,10 @@ const MainContainer = () => {
 
         if (char.length) {
             showHelperBox();
-            debounce(() => isValidKeyword(char) && getSearchRecs(char, 3600000), DEBOUNCING_TIME);
+            debounce(
+                () => isValidKeyword(char) && getSearchRecs(char, CACHE_EXPIRE_TIME),
+                DEBOUNCING_TIME
+            );
         }
     };
 
