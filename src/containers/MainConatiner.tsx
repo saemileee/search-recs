@@ -15,7 +15,15 @@ const MainContainer = () => {
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
 
     const {isLoading, data: recs, getSearchRecs, initSearchRecs} = useSearch();
-    const {onKeydownHandler, focusingIdx, setFocusingIdx} = useFocusingIdx(recs.length);
+    const {
+        onKeydownHandler,
+        focusingIdx: focusingIdxByKeyboard,
+        setFocusingIdx: setFocusingIdxByKeyboard,
+    } = useFocusingIdx(recs.length);
+    const {focusingIdx: focusingIdxByMouse, setFocusingIdx: setFocusingIdxByMouse} = useFocusingIdx(
+        recs.length
+    );
+
     const {
         isShowing: isHelperShowByMouse,
         showHelperBox,
@@ -29,22 +37,24 @@ const MainContainer = () => {
     const isNoRecMsgShow = isHelperShow && !isLoading && !recs.length;
 
     const searchKeyword =
-        recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedSearchKeyword;
+        recs.length > 0 && focusingIdxByKeyboard !== null
+            ? recs[focusingIdxByKeyboard].sickNm
+            : typedSearchKeyword;
 
     const handleChangeInput = (char: string) => {
-        setFocusingIdx(null);
+        setFocusingIdxByKeyboard(null);
         setTypedSearchKeyword(char);
         if (char.length) {
             showHelperBox();
             debounce(() => isValidKeyword(char) && getSearchRecs(char, 3600000), DEBOUNCING_TIME);
         } else {
-            // closeHelperBox();
             initSearchRecs();
         }
     };
 
     const hanldeInputKeydown = (e: React.KeyboardEvent) => {
         onKeydownHandler(e);
+        setFocusingIdxByMouse(null);
         if (e.key === 'Enter') return handleOnSubmit(searchKeyword);
     };
 
@@ -58,7 +68,7 @@ const MainContainer = () => {
 
     const handleOnSubmit = (searchKeyword: string) => {
         typedSearchKeyword && alert(searchKeyword);
-        setFocusingIdx(null);
+        setFocusingIdxByKeyboard(null);
         setTypedSearchKeyword('');
         closeHelperBox();
     };
@@ -106,10 +116,22 @@ const MainContainer = () => {
                                     <label>추천 검색어</label>
                                     {recs.map((data, idx) => (
                                         <li
-                                            className={focusingIdx === idx ? 'focused' : undefined}
+                                            className={
+                                                focusingIdxByMouse === idx ||
+                                                focusingIdxByKeyboard === idx
+                                                    ? 'focused'
+                                                    : undefined
+                                            }
                                             key={data.sickCd}
-                                            onMouseOver={() => setFocusingIdx(idx)}
-                                            onClick={() => handleOnSubmit(searchKeyword)}
+                                            onMouseOver={() => {
+                                                setFocusingIdxByMouse(idx);
+                                                setFocusingIdxByKeyboard(idx);
+                                            }}
+                                            onMouseLeave={() => {
+                                                setFocusingIdxByMouse(null);
+                                                setFocusingIdxByKeyboard(null);
+                                            }}
+                                            onClick={() => handleOnSubmit(data.sickNm)}
                                         >
                                             {data.sickNm.split(typedSearchKeyword).map((s, idx) => (
                                                 <React.Fragment key={idx}>
