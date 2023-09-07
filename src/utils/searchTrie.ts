@@ -11,7 +11,7 @@ class Child {
     data: Type.searchRec[] | [] | undefined;
     expireTime: number | undefined;
     createdAt: number | undefined;
-    children: Map<string, any>;
+    children: Map<string, Child>;
 
     constructor(
         value = '',
@@ -40,23 +40,23 @@ export class Trie {
         }
     ) {
         const {data, expireTime} = cacheInfo;
-        let currentNode = this.root;
+        let currentNode: Child | undefined = this.root;
         const lowerCaseString = string.toLowerCase();
         console.info('캐싱 됨');
 
         for (let i = 0; i < lowerCaseString.length; i++) {
             const char = lowerCaseString[i];
 
-            const isChildrenNotHavingChar = !currentNode.children.has(char);
+            const isChildrenNotHavingChar = !currentNode?.children.has(char);
             const isBeforeLastChar = i < lowerCaseString.length - 1;
             const isLastChar = i === lowerCaseString.length - 1;
 
             if (isChildrenNotHavingChar && isBeforeLastChar) {
-                currentNode.children.set(char, new Child(currentNode.value + char));
+                currentNode?.children.set(char, new Child(currentNode.value + char));
             }
 
             if (isLastChar) {
-                currentNode.children.set(
+                currentNode?.children.set(
                     char,
                     new Child(currentNode.value + char, {
                         data,
@@ -66,19 +66,19 @@ export class Trie {
                 );
             }
 
-            currentNode = currentNode.children.get(char);
+            currentNode = currentNode?.children?.get(char);
         }
     }
 
     getMostSimilar(string: string) {
-        let currentNode = this.root;
+        let currentNode: Child | undefined = this.root;
         const lowerCaseString = string.toLowerCase();
 
         for (const char of lowerCaseString) {
-            if (!currentNode.children.has(char)) {
+            if (!currentNode?.children.has(char)) {
                 return currentNode;
             }
-            currentNode = currentNode.children.get(char);
+            currentNode = currentNode?.children.get(char);
         }
         return currentNode;
     }
@@ -86,14 +86,14 @@ export class Trie {
     getCacheData(string: string) {
         const lowerCaseString = string.toLowerCase();
         const similarNode = this.getMostSimilar(lowerCaseString);
-        const similarData = similarNode.data;
+        const similarData = similarNode?.data;
 
-        const isNothingSimilar = similarNode.value === '';
+        const isNothingSimilar = similarNode?.value === '';
         const isSimilarNodeEmpty = similarData === undefined;
         const isSimilarHavingData = similarData;
         const isExpired =
-            new Date().getTime() - (similarNode.createdAt || 0) > (similarNode.expireTime || 1);
-        const isSameNodeValue = similarNode.value === lowerCaseString;
+            new Date().getTime() - (similarNode?.createdAt || 0) > (similarNode?.expireTime || 1);
+        const isSameNodeValue = similarNode?.value === lowerCaseString;
 
         if (isNothingSimilar) {
             return false;
