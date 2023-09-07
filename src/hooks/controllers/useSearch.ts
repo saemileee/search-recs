@@ -1,29 +1,60 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useReducer} from 'react';
 import * as Fetcher from '../../apis/search';
 import * as Type from '../../types/searchTypes';
 import {searchTrieCache} from '../../store/searchCache';
+import axios, {AxiosError} from 'axios';
+
+interface TypeSearchState {
+    isLoading: boolean;
+    error: null | AxiosError;
+    data: Type.searchRec[];
+}
+
+type TypeAction =
+    | {type: 'GET'; payload: Type.searchRec[]}
+    | {type: 'ERROR'; payload: AxiosError}
+    | {type: 'FETCHING'};
+
+const initState = {
+    isLoading: false,
+    error: null,
+    data: [],
+};
+
+const reducer = (state: TypeSearchState, action: TypeAction) => {
+    switch (action.type) {
+        case 'GET': {
+            const slicedData = action.payload.slice(0, MAX_RECS_LENGTH);
+            return {...state, isLoading: false, data: slicedData};
+        }
+        case 'ERROR':
+            return {...state, isLoading: false, error: action.payload};
+        case 'FETCHING':
+            return {...state, isLoading: true, error: null};
+    }
+};
 
 const MAX_RECS_LENGTH = 7;
+
 const useSearch = () => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<any>(null);
-    const [data, setData] = useState<Type.searchRec[]>([]);
+    const [state, dispatch] = useReducer(reducer, initState);
+    const {data, isLoading, error} = state;
 
     const getSearchRecs = useCallback((queryKey: string, expireTime: number) => {
         console.info('패칭 함수 호출 쿼리키: ' + queryKey);
+        dispatch({type: 'FETCHING'});
 
         const fetchData = async () => {
             try {
                 const res = await Fetcher.getSearchRecs(queryKey);
-
                 searchTrieCache.insert(queryKey, {data: res.data, expireTime});
-
-                const slicedData = res.data.slice(0, MAX_RECS_LENGTH);
-                setData(slicedData);
+                dispatch({type: 'GET', payload: res.data});
             } catch (e) {
-                setError(e);
-            } finally {
-                setIsLoading(false);
+                if (axios.isAxiosError(e)) {
+                    dispatch({type: 'ERROR', payload: e});
+                } else {
+                    console.error(e);
+                }
             }
         };
 
@@ -31,10 +62,7 @@ const useSearch = () => {
         if (cacheData) {
             console.info('저장된 쿼리키 있음, 캐시된 전체 데이터: ');
             console.info(cacheData);
-
-            const slicedData = cacheData.slice(0, MAX_RECS_LENGTH);
-            setData(slicedData);
-            setIsLoading(false);
+            dispatch({type: 'GET', payload: cacheData});
         } else {
             console.info('캐싱된 데이터가 없어 api 호출');
             fetchData();
