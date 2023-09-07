@@ -1,11 +1,9 @@
 import styled from 'styled-components';
-import {Link} from 'react-router-dom';
 import Search from '../componenets/Search';
 
 const MainContainer = () => {
     return (
         <ContainerStyled>
-            <Link to='/main'>이동</Link>
             <div className='search-wrapper'>
                 <h1>
                     국내 모든 임상시험 검색하고
