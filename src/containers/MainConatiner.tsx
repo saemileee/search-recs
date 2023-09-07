@@ -2,7 +2,7 @@ import React, {useRef, useState} from 'react';
 import styled from 'styled-components';
 import useSearch from '../hooks/controllers/useSearch';
 import useDebounce from '../hooks/useDebounce';
-import useFocusingIdx from '../hooks/useKeydown';
+import useFocusingIdx from '../hooks/useFocusingIdx';
 import useHelperBox from '../hooks/useHelperBoxState';
 import {Link} from 'react-router-dom';
 import {isValidKeyword} from '../utils/regex';
@@ -15,14 +15,14 @@ const MainContainer = () => {
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
 
     const {isLoading, data: recs, getSearchRecs, initSearchRecs} = useSearch();
+
     const {
-        onKeydownHandler,
-        focusingIdx: focusingIdxByKeyboard,
-        setFocusingIdx: setFocusingIdxByKeyboard,
+        onKeydownFocusing,
+        onMouseHoverFocusing,
+        keyBoardFocusingIdx,
+        mouseFocusingIdx,
+        initFocusingIdx,
     } = useFocusingIdx(recs.length);
-    const {focusingIdx: focusingIdxByMouse, setFocusingIdx: setFocusingIdxByMouse} = useFocusingIdx(
-        recs.length
-    );
 
     const {
         isShowing: isHelperShowByMouse,
@@ -36,41 +36,41 @@ const MainContainer = () => {
     const isRecListShow = isHelperShow && !isLoading && recs.length > 0;
     const isNoRecMsgShow = isHelperShow && !isLoading && !recs.length;
 
-    const searchKeyword =
-        recs.length > 0 && focusingIdxByKeyboard !== null
-            ? recs[focusingIdxByKeyboard].sickNm
+    const searchKeywordByKeyboard =
+        recs.length > 0 && keyBoardFocusingIdx !== null
+            ? recs[keyBoardFocusingIdx].sickNm
             : typedSearchKeyword;
 
     const handleChangeInput = (char: string) => {
-        setFocusingIdxByKeyboard(null);
+        initFocusingIdx();
         setTypedSearchKeyword(char);
+        initSearchRecs();
+
         if (char.length) {
             showHelperBox();
             debounce(() => isValidKeyword(char) && getSearchRecs(char, 3600000), DEBOUNCING_TIME);
-        } else {
-            initSearchRecs();
         }
-    };
-
-    const hanldeInputKeydown = (e: React.KeyboardEvent) => {
-        onKeydownHandler(e);
-        setFocusingIdxByMouse(null);
-        if (e.key === 'Enter') return handleOnSubmit(searchKeyword);
-    };
-
-    const activateSearch = () => {
-        typedSearchKeyword.length && showHelperBox();
     };
 
     const removeSearchKeyword = () => {
         setTypedSearchKeyword('');
     };
 
-    const handleOnSubmit = (searchKeyword: string) => {
-        typedSearchKeyword && alert(searchKeyword);
-        setFocusingIdxByKeyboard(null);
+    const hanldeInputKeydown = (e: React.KeyboardEvent) => {
+        if (e.nativeEvent.isComposing) return;
+        onKeydownFocusing(e);
+        if (e.key === 'Enter') return handleOnSubmit(searchKeywordByKeyboard);
+    };
+
+    const initUI = () => {
+        initFocusingIdx();
         setTypedSearchKeyword('');
         closeHelperBox();
+    };
+
+    const handleOnSubmit = (searchKeyword: string) => {
+        typedSearchKeyword && alert(searchKeyword);
+        initUI();
     };
 
     return (
@@ -90,7 +90,6 @@ const MainContainer = () => {
                             handleChangeInput(e.target.value)
                         }
                         onKeyDown={hanldeInputKeydown}
-                        onFocus={activateSearch}
                         placeholder='🔍 질환명을 입력해 주세요.'
                         value={typedSearchKeyword}
                     />
@@ -117,20 +116,14 @@ const MainContainer = () => {
                                     {recs.map((data, idx) => (
                                         <li
                                             className={
-                                                focusingIdxByMouse === idx ||
-                                                focusingIdxByKeyboard === idx
+                                                keyBoardFocusingIdx === idx ||
+                                                mouseFocusingIdx === idx
                                                     ? 'focused'
                                                     : undefined
                                             }
                                             key={data.sickCd}
-                                            onMouseOver={() => {
-                                                setFocusingIdxByMouse(idx);
-                                                setFocusingIdxByKeyboard(idx);
-                                            }}
-                                            onMouseLeave={() => {
-                                                setFocusingIdxByMouse(null);
-                                                setFocusingIdxByKeyboard(null);
-                                            }}
+                                            onMouseOver={() => onMouseHoverFocusing(idx)}
+                                            onMouseLeave={() => initFocusingIdx()}
                                             onClick={() => handleOnSubmit(data.sickNm)}
                                         >
                                             {data.sickNm.split(typedSearchKeyword).map((s, idx) => (
