@@ -1,8 +1,8 @@
 import * as Type from '../types/searchTypes';
 
-type TypeCacheData = Type.searchRec[] | [] | undefined;
-type TypeExpireTime = number | undefined;
-type TypeCreatedAt = number | undefined;
+type TypeCacheData = Type.searchRec[] | [] | null;
+type TypeExpireTime = number | null;
+type TypeCreatedAt = number | null;
 
 interface TypeCacheInfo {
     data: TypeCacheData;
@@ -19,26 +19,24 @@ interface TypeChild {
 }
 
 interface TypeNode {
-    [key: string]:
-        | {
-              value: string;
-              data: TypeCacheData;
-              expireTime: TypeExpireTime;
-              createdAt: TypeCreatedAt;
-              children: TypeNode;
-          }
-        | undefined;
+    [key: string]: {
+        value: string;
+        data: TypeCacheData;
+        expireTime: TypeExpireTime;
+        createdAt: TypeCreatedAt;
+        children: TypeNode;
+    } | null;
 }
 
 const initState = {
-    root: {value: '', data: undefined, expireTime: undefined, createdAt: undefined, children: {}},
+    root: {value: '', data: null, expireTime: null, createdAt: null, children: {}},
 };
 
 const getNewNode = (
     value: string,
-    data: TypeCacheData = undefined,
-    expireTime: TypeExpireTime = undefined,
-    createdAt: TypeCreatedAt = undefined
+    data: TypeCacheData = null,
+    expireTime: TypeExpireTime = null,
+    createdAt: TypeCreatedAt = null
 ) => {
     return {
         value: value,
@@ -49,16 +47,29 @@ const getNewNode = (
     };
 };
 
-localStorage.setItem('searchCache', JSON.stringify(initState));
-
 const getCurrentTime = () => {
     return new Date().getTime();
 };
 
+const getCacheAllData = () => {
+    return JSON.parse(localStorage.getItem('searchCache')!);
+};
+
+export const openCache = () => {
+    console.info('cache open');
+    const cachedData = getCacheAllData();
+    if (cachedData) {
+        return localStorage.setItem('searchCache', JSON.stringify(cachedData));
+    }
+    return localStorage.setItem('searchCache', JSON.stringify(initState));
+};
+
 export const isExpired = (cacheDataInfo: TypeChild) => {
-    const {createdAt, expireTime} = cacheDataInfo;
+    const {createdAt, expireTime} = cacheDataInfo!;
     const currentTime = getCurrentTime();
-    if (currentTime - createdAt! > expireTime!) return true;
+    if (currentTime - createdAt! > expireTime!) {
+        return true;
+    }
     return false;
 };
 
@@ -74,21 +85,29 @@ export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
         const isChildrenNotHavingChar = !currentNode?.children[char];
         const isBeforeLastChar = i < lowerCaseString.length - 1;
         const isLastChar = i === lowerCaseString.length - 1;
+        const isNeededDeleteData =
+            !isLastChar && currentNode.expireTime !== null && isExpired(currentNode);
+
+        if (isNeededDeleteData) {
+            currentNode.data = null;
+            currentNode.expireTime = null;
+            currentNode.createdAt = null;
+            console.info(currentNode.value + ' 캐시 만료');
+        }
 
         if (isChildrenNotHavingChar && isBeforeLastChar) {
             currentNode.children[char] = getNewNode(currentNode.value + char);
         }
 
         if (isLastChar) {
-            currentNode.children = {
-                [char]: getNewNode(
-                    currentNode.value + char,
-                    data,
-                    expireTime,
-                    new Date().getTime()
-                ),
-            };
+            currentNode.children[char] = getNewNode(
+                currentNode.value + char,
+                data,
+                expireTime,
+                getCurrentTime()
+            );
         }
+
         currentNode = currentNode?.children[char];
         localStorage.setItem('searchCache', JSON.stringify(newCache));
     }
@@ -114,10 +133,8 @@ export const getCacheData = (string: string) => {
     const similarData = similarNode?.data;
 
     const isNothingSimilar = similarNode?.value === '';
-    const isSimilarNodeEmpty = similarData === undefined;
+    const isSimilarNodeEmpty = similarData === null;
     const isSimilarHavingData = similarData;
-    // const isExpired =
-    //     new Date().getTime() - (similarNode?.createdAt || 0) > (similarNode?.expireTime || 1);
     const isSameNodeValue = similarNode?.value === lowerCaseString;
 
     if (isNothingSimilar) {
