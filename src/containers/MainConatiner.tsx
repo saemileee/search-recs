@@ -14,7 +14,7 @@ const MainContainer = () => {
 
     const [typedSearchKeyword, setTypedSearchKeyword] = useState('');
 
-    const {isLoading, data: recs, getSearchRecs} = useSearch();
+    const {isLoading, data: recs, getSearchRecs, initSearchRecs} = useSearch();
     const {onKeydownHandler, focusingIdx, setFocusingIdx} = useFocusingIdx(recs.length);
     const {isShowing: isHelperBoxShow, showHelperBox, closeHelperBox} = useHelperBox([searchInput]);
     const debounce = useDebounce();
@@ -30,6 +30,7 @@ const MainContainer = () => {
             debounce(() => isValidKeyword(char) && getSearchRecs(char, 3600000), DEBOUNCING_TIME);
         } else {
             closeHelperBox();
+            initSearchRecs();
         }
     };
 

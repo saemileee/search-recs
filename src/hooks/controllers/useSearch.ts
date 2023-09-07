@@ -13,7 +13,8 @@ interface TypeSearchState {
 type TypeAction =
     | {type: 'GET'; payload: Type.searchRec[]}
     | {type: 'ERROR'; payload: AxiosError}
-    | {type: 'FETCHING'};
+    | {type: 'FETCHING'}
+    | {type: 'INIT'};
 
 const initState = {
     isLoading: false,
@@ -31,6 +32,10 @@ const reducer = (state: TypeSearchState, action: TypeAction) => {
             return {...state, isLoading: false, error: action.payload};
         case 'FETCHING':
             return {...state, isLoading: true, error: null};
+        case 'INIT':
+            return initState;
+        default:
+            return state;
     }
 };
 
@@ -69,7 +74,11 @@ const useSearch = () => {
         }
     }, []);
 
-    return {data, isLoading, error, getSearchRecs};
+    const initSearchRecs = useCallback(() => {
+        dispatch({type: 'INIT'});
+    }, []);
+
+    return {data, isLoading, error, getSearchRecs, initSearchRecs};
 };
 
 export default useSearch;
