@@ -16,8 +16,17 @@ const MainContainer = () => {
 
     const {isLoading, data: recs, getSearchRecs, initSearchRecs} = useSearch();
     const {onKeydownHandler, focusingIdx, setFocusingIdx} = useFocusingIdx(recs.length);
-    const {isShowing: isHelperBoxShow, showHelperBox, closeHelperBox} = useHelperBox([searchInput]);
+    const {
+        isShowing: isHelperShowByMouse,
+        showHelperBox,
+        closeHelperBox,
+    } = useHelperBox([searchInput]);
     const debounce = useDebounce();
+
+    const isHelperShow = typedSearchKeyword.length > 0 && isHelperShowByMouse;
+    const isSearching = isHelperShow && !recs.length && isLoading;
+    const isRecListShow = isHelperShow && !isLoading && recs.length > 0;
+    const isNoRecMsgShow = isHelperShow && !isLoading && !recs.length;
 
     const searchKeyword =
         recs.length > 0 && focusingIdx !== null ? recs[focusingIdx].sickNm : typedSearchKeyword;
@@ -29,7 +38,7 @@ const MainContainer = () => {
             showHelperBox();
             debounce(() => isValidKeyword(char) && getSearchRecs(char, 3600000), DEBOUNCING_TIME);
         } else {
-            closeHelperBox();
+            // closeHelperBox();
             initSearchRecs();
         }
     };
@@ -88,10 +97,11 @@ const MainContainer = () => {
                         🔍
                     </button>
                 </div>
-                {isHelperBoxShow && (
+                {isHelperShow && (
                     <div className='helper-box'>
                         <ul>
-                            {!isLoading && recs.length > 0 && typedSearchKeyword.length > 0 && (
+                            {isSearching && <li>검색 중...</li>}
+                            {isRecListShow && (
                                 <React.Fragment>
                                     <label>추천 검색어</label>
                                     {recs.map((data, idx) => (
@@ -115,7 +125,7 @@ const MainContainer = () => {
                                     ))}
                                 </React.Fragment>
                             )}
-                            {!isLoading && recs.length === 0 && typedSearchKeyword.length > 0 && (
+                            {isNoRecMsgShow && (
                                 <li className='no-rec-message'>추천 검색어가 없습니다.</li>
                             )}
                         </ul>
