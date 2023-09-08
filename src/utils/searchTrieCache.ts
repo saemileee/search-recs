@@ -63,12 +63,17 @@ export const openCache = () => {
 };
 
 export const isExpired = (cacheDataInfo: InterfaceNode) => {
-    const {createdAt, expireTime} = cacheDataInfo;
-    const currentTime = getCurrentTime();
-    if (createdAt && expireTime && currentTime - createdAt > expireTime) {
-        return true;
+    try {
+        const {createdAt, expireTime} = cacheDataInfo;
+        const currentTime = getCurrentTime();
+        if (createdAt && expireTime && currentTime - createdAt > expireTime) {
+            return true;
+        }
+        return false;
+    } catch (e) {
+        console.error('만료 시간을 체크할 수 없습니다. 스토리지를 다시 오픈합니다.');
+        openCache();
     }
-    return false;
 };
 
 export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
@@ -111,6 +116,7 @@ export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
             searchCacheStorage.setItem(JSON.stringify(newCache));
         }
     } catch (e) {
+        console.error('순회할 수 없는 캐시입니다. 스토리지를 다시 오픈합니다.');
         openCache();
     }
 };
@@ -139,6 +145,7 @@ const getMostSimilar = (string: string) => {
         }
         return currentNode;
     } catch (e) {
+        console.error('순회할 수 없는 캐시입니다. 스토리지를 다시 오픈합니다.');
         openCache();
     }
 };
@@ -182,6 +189,7 @@ export const getCacheData = (string: string) => {
 
         return false;
     } catch (e) {
+        console.error('캐시 존재 여부를 확인할 수 없습니다. 스토리지를 다시 오픈합니다.');
         openCache();
     }
 };
