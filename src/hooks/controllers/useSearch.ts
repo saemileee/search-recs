@@ -1,4 +1,4 @@
-import {useCallback, useReducer} from 'react';
+import {useCallback, useEffect, useReducer} from 'react';
 import * as Fetcher from '../../apis/search';
 import * as Type from '../../types/searchTypes';
 import axios, {AxiosError} from 'axios';
@@ -45,11 +45,16 @@ const useSearch = () => {
     const [state, dispatch] = useReducer(reducer, initState);
     const {data, isLoading, error} = state;
 
-    const getSearchRecs = useCallback((queryKey: string, expireTime: number) => {
+    const getSearchRecs = useCallback(async (queryKey: string, expireTime: number) => {
         console.info('패칭 함수 호출 쿼리키: ' + queryKey);
         dispatch({type: 'FETCHING'});
 
-        const fetchData = async () => {
+        const cachedData = getCacheData(queryKey);
+        if (cachedData) {
+            console.info('저장된 쿼리키 있음, 캐시된 전체 데이터: ');
+            console.info(cachedData);
+            dispatch({type: 'GET', payload: cachedData});
+        } else {
             try {
                 const res = await Fetcher.getSearchRecs(queryKey);
                 insertCache(queryKey, {data: res.data, expireTime});
@@ -61,16 +66,6 @@ const useSearch = () => {
                     console.error(e);
                 }
             }
-        };
-
-        const cachedData = getCacheData(queryKey);
-        if (cachedData) {
-            console.info('저장된 쿼리키 있음, 캐시된 전체 데이터: ');
-            console.info(cachedData);
-            dispatch({type: 'GET', payload: cachedData});
-        } else {
-            console.info('캐싱된 데이터가 없어 api 호출');
-            fetchData();
         }
     }, []);
 
