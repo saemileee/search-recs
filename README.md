@@ -6,6 +6,7 @@
 - [목표 설정](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
 - [개발 기간](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
 - [시작 가이드](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [구현 결과](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
 - [과제 구현 방법](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
   1. 로컬 캐싱 구현 방법
   2. 입력별 API 호출 횟수를 줄이는 전략
