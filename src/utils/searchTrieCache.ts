@@ -72,105 +72,116 @@ export const isExpired = (cacheDataInfo: InterfaceNode) => {
 };
 
 export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
-    console.info('cache insert');
-    const {data, expireTime} = cacheInfo;
-    const newCache = searchCacheStorage.getItem();
-    let currentNode = newCache.root;
-    const lowerCaseString = string.toLowerCase();
+    try {
+        console.info('cache insert');
+        const {data, expireTime} = cacheInfo;
+        const newCache = searchCacheStorage.getItem();
+        let currentNode = newCache.root;
+        const lowerCaseString = string.toLowerCase();
 
-    for (let i = 0; i < lowerCaseString.length; i++) {
-        const char = lowerCaseString[i];
-        const isChildrenNotHavingChar = !currentNode?.children[char];
-        const isBeforeLastChar = i < lowerCaseString.length - 1;
-        const isLastChar = i === lowerCaseString.length - 1;
-        const isNeededDeleteData =
-            !isLastChar && currentNode.expireTime !== null && isExpired(currentNode);
+        for (let i = 0; i < lowerCaseString.length; i++) {
+            const char = lowerCaseString[i];
+            const isChildrenNotHavingChar = !currentNode?.children[char];
+            const isBeforeLastChar = i < lowerCaseString.length - 1;
+            const isLastChar = i === lowerCaseString.length - 1;
+            const isNeededDeleteData =
+                !isLastChar && currentNode.expireTime !== null && isExpired(currentNode);
 
-        if (isNeededDeleteData) {
-            currentNode.data = null;
-            currentNode.expireTime = null;
-            currentNode.createdAt = null;
-            console.info(currentNode.value + ' 캐시 만료');
+            if (isNeededDeleteData) {
+                currentNode.data = null;
+                currentNode.expireTime = null;
+                currentNode.createdAt = null;
+                console.info(currentNode.value + ' 캐시 만료');
+            }
+
+            if (isChildrenNotHavingChar && isBeforeLastChar) {
+                currentNode.children[char] = new Node(currentNode.value + char);
+            }
+
+            if (isLastChar) {
+                currentNode.children[char] = new Node(
+                    currentNode.value + char,
+                    data,
+                    expireTime,
+                    getCurrentTime()
+                );
+            }
+
+            currentNode = currentNode?.children[char];
+            searchCacheStorage.setItem(JSON.stringify(newCache));
         }
-
-        if (isChildrenNotHavingChar && isBeforeLastChar) {
-            currentNode.children[char] = new Node(currentNode.value + char);
-        }
-
-        if (isLastChar) {
-            currentNode.children[char] = new Node(
-                currentNode.value + char,
-                data,
-                expireTime,
-                getCurrentTime()
-            );
-        }
-
-        currentNode = currentNode?.children[char];
-        searchCacheStorage.setItem(JSON.stringify(newCache));
+    } catch (e) {
+        openCache();
     }
 };
 
 const getMostSimilar = (string: string) => {
     openCache();
+    try {
+        const newCache = searchCacheStorage.getItem();
+        let currentNode = newCache.root;
+        const lowerCaseString = string.toLowerCase();
 
-    const newCache = searchCacheStorage.getItem();
-    let currentNode = newCache.root;
-    const lowerCaseString = string.toLowerCase();
+        for (const char of lowerCaseString) {
+            const isNeededDeleteData = currentNode.expireTime !== null && isExpired(currentNode);
 
-    for (const char of lowerCaseString) {
-        const isNeededDeleteData = currentNode.expireTime !== null && isExpired(currentNode);
+            if (isNeededDeleteData) {
+                currentNode.data = null;
+                currentNode.expireTime = null;
+                currentNode.createdAt = null;
+                console.info(currentNode.value + ' 캐시 만료');
+            }
 
-        if (isNeededDeleteData) {
-            currentNode.data = null;
-            currentNode.expireTime = null;
-            currentNode.createdAt = null;
-            console.info(currentNode.value + ' 캐시 만료');
+            if (!currentNode?.children[char]) {
+                return currentNode;
+            }
+            currentNode = currentNode?.children[char];
         }
-
-        if (!currentNode?.children[char]) {
-            return currentNode;
-        }
-        currentNode = currentNode?.children[char];
+        return currentNode;
+    } catch (e) {
+        openCache();
     }
-    return currentNode;
 };
 
 export const getCacheData = (string: string) => {
-    const lowerCaseString = string.toLowerCase();
-    const similarNode = getMostSimilar(lowerCaseString);
-    const similarData = similarNode?.data;
+    try {
+        const lowerCaseString = string.toLowerCase();
+        const similarNode = getMostSimilar(lowerCaseString);
+        const similarData = similarNode?.data;
 
-    const isNothingSimilar = similarNode?.value === '';
-    const isSimilarNodeEmpty = similarData === null;
-    const isSimilarHavingData = similarData;
-    const isSameNodeValue = similarNode?.value === lowerCaseString;
+        const isNothingSimilar = similarNode?.value === '';
+        const isSimilarNodeEmpty = similarData === null;
+        const isSimilarHavingData = similarData;
+        const isSameNodeValue = similarNode?.value === lowerCaseString;
 
-    if (isNothingSimilar) {
-        return false;
-    }
-
-    if (isSimilarNodeEmpty) {
-        return false;
-    }
-
-    if (isSimilarHavingData) {
-        if (isExpired(similarNode)) {
-            console.info('캐시 만료');
+        if (isNothingSimilar) {
             return false;
-        } else {
-            if (isSameNodeValue) {
-                return similarNode.data;
-            }
-            const newData = similarData.filter((rec: Type.searchRec) =>
-                rec.sickNm.toLowerCase().includes(lowerCaseString)
-            );
-
-            insertCache(lowerCaseString, {data: newData, expireTime: similarNode.expireTime});
-
-            return newData;
         }
-    }
 
-    return false;
+        if (isSimilarNodeEmpty) {
+            return false;
+        }
+
+        if (isSimilarHavingData) {
+            if (isExpired(similarNode)) {
+                console.info('캐시 만료');
+                return false;
+            } else {
+                if (isSameNodeValue) {
+                    return similarNode.data;
+                }
+                const newData = similarData.filter((rec: Type.searchRec) =>
+                    rec.sickNm.toLowerCase().includes(lowerCaseString)
+                );
+
+                insertCache(lowerCaseString, {data: newData, expireTime: similarNode.expireTime});
+
+                return newData;
+            }
+        }
+
+        return false;
+    } catch (e) {
+        openCache();
+    }
 };

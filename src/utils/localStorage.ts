@@ -5,10 +5,20 @@ export class LocalStorage {
     }
 
     getItem() {
-        return JSON.parse(localStorage.getItem(this.key)!);
+        try {
+            return JSON.parse(localStorage.getItem(this.key)!);
+        } catch (e) {
+            console.error('로컬 스토리지 사용자 임의 조작');
+            this.setItem('');
+        }
     }
 
     setItem(value: string) {
-        return JSON.stringify(localStorage.setItem(this.key, value));
+        try {
+            return JSON.stringify(localStorage.setItem(this.key, value));
+        } catch (e) {
+            console.error('로컬 스토리지 사용자 임의 조작');
+            this.setItem('');
+        }
     }
 }
