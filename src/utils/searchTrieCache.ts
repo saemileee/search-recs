@@ -74,7 +74,7 @@ export const isExpired = (cacheDataInfo: InterfaceNode) => {
 export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
     console.info('cache insert');
     const {data, expireTime} = cacheInfo;
-    const newCache = JSON.parse(localStorage.getItem('searchCache') || '');
+    const newCache = searchCacheStorage.getItem();
     let currentNode = newCache.root;
     const lowerCaseString = string.toLowerCase();
 
