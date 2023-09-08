@@ -11,42 +11,39 @@ interface TypeCacheInfo {
     createdAt?: TypeCreatedAt;
 }
 
-interface TypeChild {
+interface InterfaceNode {
     value: string;
-    data?: TypeCacheData;
-    expireTime?: TypeExpireTime;
-    createdAt?: TypeCreatedAt;
-    children?: TypeNode;
+    data: TypeCacheData;
+    expireTime: TypeExpireTime;
+    createdAt: TypeCreatedAt;
+    children?: InterfaceNodeObj;
 }
 
-interface TypeNode {
-    [key: string]: {
-        value: string;
-        data: TypeCacheData;
-        expireTime: TypeExpireTime;
-        createdAt: TypeCreatedAt;
-        children: TypeNode;
-    } | null;
+interface InterfaceNodeObj {
+    [key: string]: InterfaceNode;
 }
 
-const initState = {
-    root: {value: '', data: null, expireTime: null, createdAt: null, children: {}},
-};
+class Node {
+    value: string;
+    data: TypeCacheData;
+    expireTime: TypeExpireTime;
+    createdAt: TypeCreatedAt;
+    children: Node | object;
+    constructor(
+        value: string,
+        data: TypeCacheData = null,
+        expireTime: TypeExpireTime = null,
+        createdAt: TypeCreatedAt = null
+    ) {
+        this.value = value;
+        this.data = data;
+        this.expireTime = expireTime;
+        this.createdAt = createdAt;
+        this.children = {};
+    }
+}
 
-const getNewNode = (
-    value: string,
-    data: TypeCacheData = null,
-    expireTime: TypeExpireTime = null,
-    createdAt: TypeCreatedAt = null
-) => {
-    return {
-        value: value,
-        data,
-        expireTime,
-        createdAt,
-        children: {},
-    };
-};
+const rootObj = {root: new Node('')};
 
 const getCurrentTime = () => {
     return new Date().getTime();
@@ -62,10 +59,10 @@ export const openCache = () => {
     if (cachedData) {
         return;
     }
-    return searchCacheStorage.setItem(JSON.stringify(initState));
+    return searchCacheStorage.setItem(JSON.stringify(rootObj));
 };
 
-export const isExpired = (cacheDataInfo: TypeChild) => {
+export const isExpired = (cacheDataInfo: InterfaceNode) => {
     const {createdAt, expireTime} = cacheDataInfo;
     const currentTime = getCurrentTime();
     if (createdAt && expireTime && currentTime - createdAt > expireTime) {
@@ -97,11 +94,11 @@ export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
         }
 
         if (isChildrenNotHavingChar && isBeforeLastChar) {
-            currentNode.children[char] = getNewNode(currentNode.value + char);
+            currentNode.children[char] = new Node(currentNode.value + char);
         }
 
         if (isLastChar) {
-            currentNode.children[char] = getNewNode(
+            currentNode.children[char] = new Node(
                 currentNode.value + char,
                 data,
                 expireTime,
