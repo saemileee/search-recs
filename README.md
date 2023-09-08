@@ -2,18 +2,25 @@
 
 ## 📖 목차
 
-- 과제 소개
-- 목표 설정
-- 개발 기간
-- 시작 가이드
-- 과제 구현 방법
+- [과제 소개](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [목표 설정](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [개발 기간](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [시작 가이드](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [과제 구현 방법](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
   1. 로컬 캐싱 구현 방법
   2. 입력별 API 호출 횟수를 줄이는 전략
   3. 키보드&마우스 이용한 추천 검색어 기능 사용법
-- 코드 작성 전략
-- 트러블 슈팅
-- 기술스택
-* 우측 상단의 ![스크린샷 2023-09-08 오후 10 09 24](https://github.com/saemileee/search-recs/assets/68241138/e8b5c1a4-69e0-404e-b121-83fbfb0a6cec) 아이콘을 누르시면 목차를 이동하며 볼 수 있습니다.
+- [코드 작성 전략](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+  1. 리듀서로 패칭 후 상태 업데이트 로직 관리
+  2. 복잡한 조건문 변수로 추상화
+  3. 복잡한 UI 로직 커스텀훅 사용
+  4. 클래스로 자주 쓰이는 유틸 함수 모듈화
+- [Best Practice 도출](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [트러블 슈팅](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+  1. Trie 자료구조 JSON.stringify 시 뎁스 전체가 저장 되지 않는 문제
+  2. Trie 자료구조의 객체 데이터를 조작할 때 이슈
+- [디렉토리 구조](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [기술스택](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
 
 <br/>
 
@@ -46,10 +53,6 @@
 ## 💡 개발 기간
 2023.09.05 - 2023.09.08
 
-<br/>
-
-## 💡 팀 노션
-[팀 노션 링크](https://motley-bird-51b.notion.site/3-404e18226e6045d5a67703dccaa4a393?pvs=4) 
 
 <br/>
 
