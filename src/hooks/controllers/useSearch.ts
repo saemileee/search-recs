@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useReducer} from 'react';
+import {useCallback, useReducer} from 'react';
 import * as Fetcher from '../../apis/search';
 import * as Type from '../../types/searchTypes';
 import axios, {AxiosError} from 'axios';
