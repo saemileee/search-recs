@@ -5,7 +5,7 @@ export class LocalStorage {
     }
 
     getItem() {
-        return JSON.parse(localStorage.getItem(this.key) || '');
+        return JSON.parse(localStorage.getItem(this.key)!);
     }
 
     setItem(value: string) {
