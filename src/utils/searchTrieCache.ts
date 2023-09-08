@@ -1,3 +1,4 @@
+import {searchCacheStorage} from '../store/cacheStorage';
 import * as Type from '../types/searchTypes';
 
 type TypeCacheData = Type.searchRec[] | [] | null;
@@ -52,22 +53,22 @@ const getCurrentTime = () => {
 };
 
 const getCacheAllData = () => {
-    return JSON.parse(localStorage.getItem('searchCache')!);
+    return searchCacheStorage.getItem();
 };
 
 export const openCache = () => {
     console.info('cache open');
     const cachedData = getCacheAllData();
     if (cachedData) {
-        return localStorage.setItem('searchCache', JSON.stringify(cachedData));
+        return;
     }
-    return localStorage.setItem('searchCache', JSON.stringify(initState));
+    return searchCacheStorage.setItem(JSON.stringify(initState));
 };
 
 export const isExpired = (cacheDataInfo: TypeChild) => {
-    const {createdAt, expireTime} = cacheDataInfo!;
+    const {createdAt, expireTime} = cacheDataInfo;
     const currentTime = getCurrentTime();
-    if (currentTime - createdAt! > expireTime!) {
+    if (createdAt && expireTime && currentTime - createdAt > expireTime) {
         return true;
     }
     return false;
@@ -76,7 +77,7 @@ export const isExpired = (cacheDataInfo: TypeChild) => {
 export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
     console.info('cache insert');
     const {data, expireTime} = cacheInfo;
-    const newCache = JSON.parse(localStorage.getItem('searchCache')!);
+    const newCache = JSON.parse(localStorage.getItem('searchCache') || '');
     let currentNode = newCache.root;
     const lowerCaseString = string.toLowerCase();
 
@@ -109,14 +110,14 @@ export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
         }
 
         currentNode = currentNode?.children[char];
-        localStorage.setItem('searchCache', JSON.stringify(newCache));
+        searchCacheStorage.setItem(JSON.stringify(newCache));
     }
 };
 
 const getMostSimilar = (string: string) => {
     openCache();
 
-    const newCache = JSON.parse(localStorage.getItem('searchCache')!);
+    const newCache = JSON.parse(localStorage.getItem('searchCache') || '');
     let currentNode = newCache.root;
     const lowerCaseString = string.toLowerCase();
 
@@ -155,7 +156,7 @@ export const getCacheData = (string: string) => {
             if (isSameNodeValue) {
                 return similarNode.data;
             }
-            const newData = similarData.filter((rec: any) =>
+            const newData = similarData.filter((rec: Type.searchRec) =>
                 rec.sickNm.toLowerCase().includes(lowerCaseString)
             );
 
