@@ -8,7 +8,7 @@ import {isValidKeyword} from '../utils/regex';
 import styled from 'styled-components';
 
 const DEBOUNCING_TIME = 500;
-const CACHE_EXPIRE_TIME = 3600000;
+const CACHE_EXPIRE_TIME = 10000;
 
 const Search = () => {
     const searchInput = useRef(null);
@@ -60,7 +60,7 @@ const Search = () => {
         setTypedSearchKeyword('');
     };
 
-    const hanldeInputKeydown = (e: React.KeyboardEvent) => {
+    const handleInputKeydown = (e: React.KeyboardEvent) => {
         if (e.nativeEvent.isComposing) return;
         onKeydownFocusing(e);
         if (e.key === 'Enter') return handleOnSubmit(searchKeywordByKeyboard);
@@ -86,7 +86,7 @@ const Search = () => {
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                         handleChangeInput(e.target.value)
                     }
-                    onKeyDown={hanldeInputKeydown}
+                    onKeyDown={handleInputKeydown}
                     placeholder='🔍 질환명을 입력해 주세요.'
                     value={typedSearchKeyword}
                 />
