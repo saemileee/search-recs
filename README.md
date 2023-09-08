@@ -221,7 +221,7 @@
 ---
 
 ### 복잡한 조건문 변수로 추상화
-- [X] 한 함수 내에서 조건문이 많이 쓰이거나 조건문이 복잡한 경우 변수를 활용하여 조건문을 추상화 하였습니다.
+- [X] 한 함수 내에서 조건문이 많이 쓰이거나 조건문이 복잡한 경우 변수를 활용하여 조건문을 추상화 하고 직관적으로 사용할 수 있게 하였습니다.
   https://github.com/saemileee/search-recs/blob/d5c74a658624ca227d9cc61c9cb4cfdf7a5e8a53/src/utils/searchTrieCache.ts#L149-L190
   https://github.com/saemileee/search-recs/blob/d5c74a658624ca227d9cc61c9cb4cfdf7a5e8a53/src/components/Search.tsx#L35-L38
 
