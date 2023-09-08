@@ -122,6 +122,15 @@ const getMostSimilar = (string: string) => {
     const lowerCaseString = string.toLowerCase();
 
     for (const char of lowerCaseString) {
+        const isNeededDeleteData = currentNode.expireTime !== null && isExpired(currentNode);
+
+        if (isNeededDeleteData) {
+            currentNode.data = null;
+            currentNode.expireTime = null;
+            currentNode.createdAt = null;
+            console.info(currentNode.value + ' 캐시 만료');
+        }
+
         if (!currentNode?.children[char]) {
             return currentNode;
         }
