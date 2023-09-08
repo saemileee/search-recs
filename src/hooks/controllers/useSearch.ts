@@ -51,8 +51,7 @@ const useSearch = () => {
 
         const cachedData = getCacheData(queryKey);
         if (cachedData) {
-            console.info('저장된 쿼리키 있음, 캐시된 전체 데이터: ');
-            console.info(cachedData);
+            console.info('저장된 쿼리키 있음 ');
             dispatch({type: 'GET', payload: cachedData});
         } else {
             try {
