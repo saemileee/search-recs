@@ -117,7 +117,7 @@ export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
 const getMostSimilar = (string: string) => {
     openCache();
 
-    const newCache = JSON.parse(localStorage.getItem('searchCache') || '');
+    const newCache = searchCacheStorage.getItem();
     let currentNode = newCache.root;
     const lowerCaseString = string.toLowerCase();
 
