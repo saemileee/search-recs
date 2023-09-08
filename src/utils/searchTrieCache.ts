@@ -54,7 +54,6 @@ const getCacheAllData = () => {
 };
 
 export const openCache = () => {
-    console.info('cache open');
     const cachedData = getCacheAllData();
     if (cachedData) {
         return;
@@ -78,7 +77,6 @@ export const isExpired = (cacheDataInfo: InterfaceNode) => {
 
 export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
     try {
-        console.info('cache insert');
         const {data, expireTime} = cacheInfo;
         const newCache = searchCacheStorage.getItem();
         let currentNode = newCache.root;
@@ -96,7 +94,6 @@ export const insertCache = (string: string, cacheInfo: TypeCacheInfo) => {
                 currentNode.data = null;
                 currentNode.expireTime = null;
                 currentNode.createdAt = null;
-                console.info(currentNode.value + ' 캐시 만료');
             }
 
             if (isChildrenNotHavingChar && isBeforeLastChar) {
@@ -135,7 +132,6 @@ const getMostSimilar = (string: string) => {
                 currentNode.data = null;
                 currentNode.expireTime = null;
                 currentNode.createdAt = null;
-                console.info(currentNode.value + ' 캐시 만료');
             }
 
             if (!currentNode?.children[char]) {
@@ -171,7 +167,6 @@ export const getCacheData = (string: string) => {
 
         if (isSimilarHavingData) {
             if (isExpired(similarNode)) {
-                console.info('캐시 만료');
                 return false;
             } else {
                 if (isSameNodeValue) {

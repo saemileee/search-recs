@@ -46,12 +46,10 @@ const useSearch = () => {
     const {data, isLoading, error} = state;
 
     const getSearchRecs = useCallback(async (queryKey: string, expireTime: number) => {
-        console.info('패칭 함수 호출 쿼리키: ' + queryKey);
         dispatch({type: 'FETCHING'});
 
         const cachedData = getCacheData(queryKey);
         if (cachedData) {
-            console.info('저장된 쿼리키 있음 ');
             dispatch({type: 'GET', payload: cachedData});
         } else {
             try {
