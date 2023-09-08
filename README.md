@@ -3,25 +3,25 @@
 ## 📖 목차
 
 - [과제 소개](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
-- [목표 설정](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
-- [개발 기간](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
-- [시작 가이드](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
-- [구현 결과](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
-- [과제 구현 방법](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [목표 설정](https://github.com/saemileee/search-recs/tree/main#-%EB%AA%A9%ED%91%9C-%EC%84%A4%EC%A0%95)
+- [개발 기간](https://github.com/saemileee/search-recs/tree/main#-%EA%B0%9C%EB%B0%9C-%EA%B8%B0%EA%B0%84)
+- [시작 가이드](https://github.com/saemileee/search-recs/tree/main#-%EC%8B%9C%EC%9E%91-%EA%B0%80%EC%9D%B4%EB%93%9C)
+- [구현 결과](https://github.com/saemileee/search-recs/tree/main#-%EA%B5%AC%ED%98%84-%EA%B2%B0%EA%B3%BC)
+- [과제 구현 방법](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EA%B5%AC%ED%98%84-%EB%B0%A9%EB%B2%95)
   1. 로컬 캐싱 구현 방법
   2. 입력별 API 호출 횟수를 줄이는 전략
   3. 키보드&마우스 이용한 추천 검색어 기능 사용법
-- [코드 작성 전략](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [코드 작성 전략](https://github.com/saemileee/search-recs/tree/main#-%EC%BD%94%EB%93%9C-%EC%9E%91%EC%84%B1-%EC%A0%84%EB%9E%B5)
   1. 리듀서로 패칭 후 상태 업데이트 로직 관리
   2. 복잡한 조건문 변수로 추상화
   3. 복잡한 UI 로직 커스텀훅 사용
   4. 클래스로 자주 쓰이는 유틸 함수 모듈화
-- [Best Practice 도출](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
-- [트러블 슈팅](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [Best Practice 도출](https://github.com/saemileee/search-recs/tree/main#-best-practice-%EB%8F%84%EC%B6%9C)
+- [트러블 슈팅](https://github.com/saemileee/search-recs/tree/main#-%ED%8A%B8%EB%9F%AC%EB%B8%94-%EC%8A%88%ED%8C%85)
   1. Trie 자료구조 JSON.stringify 시 뎁스 전체가 저장 되지 않는 문제
   2. Trie 자료구조의 객체 데이터를 조작할 때 이슈
-- [디렉토리 구조](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
-- [기술스택](https://github.com/saemileee/search-recs/tree/main#-%EA%B3%BC%EC%A0%9C-%EC%86%8C%EA%B0%9C)
+- [디렉토리 구조](https://github.com/saemileee/search-recs/tree/main#-%EB%94%94%EB%A0%89%ED%86%A0%EB%A6%AC-%EA%B5%AC%EC%A1%B0)
+- [기술스택](https://github.com/saemileee/search-recs/tree/main#-%EA%B8%B0%EC%88%A0%EC%8A%A4%ED%83%9D)
 
 <br/>
 
