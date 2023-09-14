@@ -2,16 +2,17 @@ import {useCallback, useReducer} from 'react';
 import * as Fetcher from '../../apis/search';
 import * as Type from '../../types/searchTypes';
 import axios, {AxiosError} from 'axios';
-import {insertCache, getCacheData} from '../../utils/searchTrieCache';
+import {TrieCache} from '../../utils/trieCache';
+import {searchCacheStorage} from '../../store/cacheStorage';
 
 interface TypeSearchState {
     isLoading: boolean;
     error: null | AxiosError;
-    data: Type.searchRec[];
+    data: string[];
 }
 
 type TypeAction =
-    | {type: 'GET'; payload: Type.searchRec[]}
+    | {type: 'GET'; payload: string[]}
     | {type: 'ERROR'; payload: AxiosError}
     | {type: 'FETCHING'}
     | {type: 'INIT'};
@@ -41,6 +42,8 @@ const reducer = (state: TypeSearchState, action: TypeAction) => {
 
 const MAX_RECS_LENGTH = 7;
 
+const searchTrieCache = new TrieCache(searchCacheStorage);
+
 const useSearch = () => {
     const [state, dispatch] = useReducer(reducer, initState);
     const {data, isLoading, error} = state;
@@ -48,14 +51,18 @@ const useSearch = () => {
     const getSearchRecs = useCallback(async (queryKey: string, expireTime: number) => {
         dispatch({type: 'FETCHING'});
 
-        const cachedData = getCacheData(queryKey);
+        const cachedData = searchTrieCache.getCacheData(queryKey);
         if (cachedData) {
             dispatch({type: 'GET', payload: cachedData});
         } else {
             try {
                 const res = await Fetcher.getSearchRecs(queryKey);
-                insertCache(queryKey, {data: res.data, expireTime});
-                dispatch({type: 'GET', payload: res.data});
+                const recs = res.data.map((data: Type.searchRec) => data.sickNm);
+                searchTrieCache.insertCache(queryKey, {
+                    data: recs,
+                    expireTime,
+                });
+                dispatch({type: 'GET', payload: recs});
             } catch (e) {
                 if (axios.isAxiosError(e)) {
                     dispatch({type: 'ERROR', payload: e});
