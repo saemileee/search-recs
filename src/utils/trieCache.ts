@@ -8,7 +8,7 @@ interface TypeCacheInfo {
     createdAt?: TypeCreatedAt;
 }
 
-interface InterfaceNode {
+export interface InterfaceNode {
     value: string;
     data: TypeCacheData;
     expireTime: TypeExpireTime;
@@ -23,7 +23,7 @@ interface InterfaceChild {
 interface InterfaceLocalStorage {
     key: string;
     getItem: () => InterfaceNode;
-    setItem: (value: string) => string | undefined;
+    setItem: (value: InterfaceNode) => void;
 }
 
 class Node {
@@ -56,41 +56,40 @@ export class TrieCache {
         this.currentNode = this.root;
     }
 
-    private getCurrentTime() {
-        return new Date().getTime();
-    }
-
     private openCache() {
         try {
             const cachedData = this.cacheStorage.getItem();
             if (cachedData) {
                 this.root = cachedData;
             } else {
-                this.root = this.resetCacheStorage();
+                this.initCacheStorage();
             }
         } catch (e) {
             console.error('캐시 스토리지가 비어있습니다. 초기화합니다.');
-            this.root = this.resetCacheStorage();
+            this.resetCacheStorage();
         }
-    }
-
-    private resetCacheStorage() {
-        this.cacheStorage.setItem(JSON.stringify({...new Node('')}));
-        const resetData = this.cacheStorage.getItem();
-        this.root = resetData;
-        return resetData;
     }
 
     private initCacheStorage() {
         const initData = this.root;
         if (initData) {
-            this.cacheStorage.setItem(JSON.stringify(initData));
+            this.cacheStorage.setItem(initData);
         } else {
             this.resetCacheStorage();
         }
     }
 
-    private isExpired = (cacheInfo: InterfaceNode) => {
+    private resetCacheStorage() {
+        this.cacheStorage.setItem({...new Node('')});
+        const resetData = this.cacheStorage.getItem();
+        this.root = resetData;
+    }
+
+    private getCurrentTime() {
+        return new Date().getTime();
+    }
+
+    private isExpired(cacheInfo: InterfaceNode) {
         try {
             const {createdAt, expireTime} = cacheInfo;
             const currentTime = this.getCurrentTime();
@@ -102,14 +101,14 @@ export class TrieCache {
             console.error('만료 시간을 체크할 수 없습니다. 스토리지를 다시 오픈합니다.');
             this.initCacheStorage();
         }
-    };
+    }
 
     private addChild(key: string, node: Node) {
         // 인자로 받은 Node는 Node{...} 로 들어오기 때문에 스프레드 연산자로 객체 형태로 변환
         this.currentNode.children[key] = {...node};
     }
 
-    private getCommonPrefixCache(string: string) {
+    private getCommonPrefixCache(searchKey: string) {
         try {
             // 가장 먼저 동작하는 메소드이기 때문에 cache를 오픈함
             this.openCache();
@@ -118,8 +117,8 @@ export class TrieCache {
             let mostSimilarNode = this.currentNode;
 
             // 문자열을 순회하며 노드 체크
-            for (let i = 0; i < string.length; i++) {
-                const char = string[i];
+            for (let i = 0; i < searchKey.length; i++) {
+                const char = searchKey[i];
 
                 // 현재 노드의 children에 이미 문자열이 저장되어 있는 경우
                 if (char in this.currentNode.children) {
@@ -157,18 +156,18 @@ export class TrieCache {
         }
     }
 
-    insertCache(string: string, cacheInfo: TypeCacheInfo) {
+    insertCache(searchKey: string, cacheInfo: TypeCacheInfo) {
         const {data, expireTime} = cacheInfo;
 
         // currentNode는 getSimilar를 순회한 후 마지막 노드이기 때문에 startIdx는 비슷한 노드의 value 길이 다음 부터 체크하면 됨
         const startIdx = this.currentNode.value.length;
 
-        for (let i = startIdx; i < string.length; i++) {
-            const char = string[i];
+        for (let i = startIdx; i < searchKey.length; i++) {
+            const char = searchKey[i];
             const newValue = this.currentNode.value + char;
 
             // 마지막 문자열에 데이터 추가
-            const charNeedsAddData = i === string.length - 1;
+            const charNeedsAddData = i === searchKey.length - 1;
             if (charNeedsAddData) {
                 this.addChild(char, new Node(newValue, data, expireTime, this.getCurrentTime()));
             } else {
@@ -182,8 +181,8 @@ export class TrieCache {
         this.initCacheStorage();
     }
 
-    getCacheData(string: string) {
-        const lowerCaseString = string.toLowerCase();
+    getCacheData(searchKey: string) {
+        const lowerCaseString = searchKey.toLowerCase();
 
         // 검색한 문자열의 앞 문자열들로 캐싱된 데이터가 있는지 찾기
         const commonPrefixNode = this.getCommonPrefixCache(lowerCaseString);
