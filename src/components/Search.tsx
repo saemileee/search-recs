@@ -8,7 +8,7 @@ import {isValidKeyword} from '../utils/regex';
 import styled from 'styled-components';
 
 const DEBOUNCING_TIME = 500;
-const CACHE_EXPIRE_TIME = 50000;
+const CACHE_EXPIRE_TIME = 1000 * 60 * 3;
 
 const Search = () => {
     const searchInput = useRef(null);
