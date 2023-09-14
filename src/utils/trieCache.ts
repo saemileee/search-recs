@@ -59,13 +59,24 @@ export class TrieCache {
     private openCache() {
         try {
             const cachedData = this.cacheStorage.getItem();
+            const cachedDataIsIterable =
+                'value' in cachedData &&
+                'data' in cachedData &&
+                'expireTime' in cachedData &&
+                'createdAt' in cachedData &&
+                'children' in cachedData;
+
             if (cachedData) {
+                if (!cachedDataIsIterable) {
+                    throw new Error('순회할 수 없는 자료구조입니다.');
+                }
                 this.root = cachedData;
             } else {
                 this.initCacheStorage();
             }
         } catch (e) {
-            console.error('캐시 스토리지가 비어있습니다. 초기화합니다.');
+            console.error(e);
+            console.error('초기화합니다');
             this.resetCacheStorage();
         }
     }
