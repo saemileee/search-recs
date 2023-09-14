@@ -1,4 +1,4 @@
-export class LocalStorage {
+export class LocalStorage<T> {
     key: string;
     constructor(key: string) {
         this.key = key;
@@ -8,16 +8,16 @@ export class LocalStorage {
         try {
             return JSON.parse(localStorage.getItem(this.key)!);
         } catch (e) {
-            console.error('파싱될 수 없는 value 값입니다. 스토리지를 다시 오픈합니다.');
+            console.error('파싱될 수 없는 value 값입니다. 스토리지를 리셋합니다.');
             this.setItem('');
         }
     }
 
-    setItem(value: string) {
+    setItem(value: T | string) {
         try {
-            return JSON.stringify(localStorage.setItem(this.key, value));
+            return localStorage.setItem(this.key, JSON.stringify(value));
         } catch (e) {
-            console.error('value 값 입니다. 스토리지를 다시 오픈합니다.');
+            console.error('용량을 초과했습니다. 스토리지를 리셋합니다.');
             this.setItem('');
         }
     }
