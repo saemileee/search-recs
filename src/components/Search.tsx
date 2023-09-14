@@ -8,7 +8,7 @@ import {isValidKeyword} from '../utils/regex';
 import styled from 'styled-components';
 
 const DEBOUNCING_TIME = 500;
-const CACHE_EXPIRE_TIME = 10000;
+const CACHE_EXPIRE_TIME = 1000 * 60 * 3;
 
 const Search = () => {
     const searchInput = useRef(null);
@@ -39,7 +39,7 @@ const Search = () => {
 
     const searchKeywordByKeyboard =
         recs.length > 0 && keyBoardFocusingIdx !== null
-            ? recs[keyBoardFocusingIdx].sickNm
+            ? recs[keyBoardFocusingIdx]
             : typedSearchKeyword;
 
     const handleChangeInput = (char: string) => {
@@ -110,19 +110,19 @@ const Search = () => {
                         {isRecListShow && (
                             <React.Fragment>
                                 <label>추천 검색어</label>
-                                {recs.map((data, idx) => (
+                                {recs.map((item, idx) => (
                                     <li
                                         className={
                                             keyBoardFocusingIdx === idx || mouseFocusingIdx === idx
                                                 ? 'focused'
                                                 : undefined
                                         }
-                                        key={data.sickCd}
+                                        key={`data-${idx}`}
                                         onMouseOver={() => onMouseHoverFocusing(idx)}
                                         onMouseLeave={() => initFocusingIdx()}
-                                        onClick={() => handleOnSubmit(data.sickNm)}
+                                        onClick={() => handleOnSubmit(item)}
                                     >
-                                        {data.sickNm.split(typedSearchKeyword).map((s, idx) => (
+                                        {item.split(typedSearchKeyword).map((s, idx) => (
                                             <React.Fragment key={idx}>
                                                 {idx > 0 && (
                                                     <span className='bold'>
