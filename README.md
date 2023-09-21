@@ -64,7 +64,7 @@
 
 -   배포 주소
 
-    🔗 [https://pre-onboarding-12th-3-11-seven.vercel.app](https://search-app-theta.vercel.app/)
+    🔗 [https://search-app-theta.vercel.app/](https://search-app-theta.vercel.app/)
 
 -   프로젝트 로컬 실행 방법
 -   프론트 서버인 3000 포트와 json-server 4000포트가 동시에 실행됩니다.
