@@ -139,12 +139,10 @@ export class TrieCache {
                     const currentCacheIsExpired =
                         this.currentNode.expireTime !== null && this.isExpired(this.currentNode);
                     if (currentCacheIsExpired) {
-                        this.currentNode = {
-                            ...this.currentNode,
-                            data: null,
-                            expireTime: null,
-                            createdAt: null,
-                        };
+                        console.info(searchKey, ' 캐시 만료');
+                        this.currentNode.data = null;
+                        this.currentNode.expireTime = null;
+                        this.currentNode.createdAt = null;
                         this.initCacheStorage();
                     }
 
@@ -172,6 +170,12 @@ export class TrieCache {
 
         // currentNode는 getSimilar를 순회한 후 마지막 노드이기 때문에 startIdx는 비슷한 노드의 value 길이 다음 부터 체크하면 됨
         const startIdx = this.currentNode.value.length;
+
+        if (this.currentNode.value === searchKey) {
+            this.currentNode.data = data;
+            this.currentNode.expireTime = expireTime;
+            this.currentNode.createdAt = this.getCurrentTime();
+        }
 
         for (let i = startIdx; i < searchKey.length; i++) {
             const char = searchKey[i];
